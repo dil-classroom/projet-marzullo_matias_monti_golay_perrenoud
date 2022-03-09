@@ -1,93 +1,75 @@
-Code of Conduct
+# Contributor Covenant Code of Conduct
 
-    A code of conduct is a set of rules outlining the social norms and rules and responsibilities of, or proper practices for, an individual, party or organization
+Taken from: https://raw.githubusercontent.com/probot/template/master/CODE_OF_CONDUCT.md
 
-Summary
+## Our Pledge
 
-The {NAME} is dedicated to providing a harassment-free working environment for all, regardless of gender, sexual orientation, disability, physical appearance, body size, race, or religion. We do not tolerate harassment of any form. All communication should be appropriate for a professional audience including people of many different backgrounds.
+In the interest of fostering an open and welcoming environment, we as
+contributors and maintainers pledge to making participation in our project and
+our community a harassment-free experience for everyone, regardless of age, body
+size, disability, ethnicity, gender identity and expression, level of experience,
+education, socio-economic status, nationality, personal appearance, race,
+religion, or sexual identity and orientation.
 
-Sexual language and imagery is not appropriate for any communication and/or talks. Be kind and do not insult or put down others. Behave professionally. Remember that harassment and sexist, racist, or exclusionary jokes are not appropriate for {NAME}. Staff violating these rules should be reported to an appropriate line manager.
+## Our Standards
 
-These are the values to which people in the {NAME} community should aspire:
+Examples of behavior that contributes to creating a positive environment
+include:
 
-    Be friendly and welcoming
-    Be patient
-        Remember that people have varying communication styles and that not everyone is using their native language. (Meaning and tone can be lost in translation.)
-    Be thoughtful
-        Productive communication requires effort. Think about how your words will be interpreted.
-        Remember that sometimes it is best to refrain entirely from commenting.
-    Be respectful
-        In particular, respect differences of opinion.
-    Be charitable
-        Interpret the arguments of others in good faith, do not seek to disagree.
-        When we do disagree, try to understand why.
-    Avoid destructive behavior:
-        Derailing: stay on topic; if you want to talk about something else, start a new conversation.
-        Unconstructive criticism: don't merely decry the current state of affairs; offer—or at least solicit—suggestions as to how things may be improved.
-        Snarking (pithy, unproductive, sniping comments)
-        Discussing potentially offensive or sensitive issues; this all too often leads to unnecessary conflict.
-        Microaggressions: brief and commonplace verbal, behavioral and environmental indignities that communicate hostile, derogatory or negative slights and insults to a person or group.
+* Using welcoming and inclusive language
+* Being respectful of differing viewpoints and experiences
+* Gracefully accepting constructive criticism
+* Focusing on what is best for the community
+* Showing empathy towards other community members
 
-People are complicated. You should expect to be misunderstood and to misunderstand others; when this inevitably occurs, resist the urge to be defensive or assign blame. Try not to take offense where no offense was intended. Give people the benefit of the doubt. Even if the intent was to provoke, do not rise to it. It is the responsibility of all parties to de-escalate conflict when it arises.
-Reporting an incident
+Examples of unacceptable behavior by participants include:
 
-Incidents that violate the Code of Conduct are extremely damaging to the {NAME}, and they will not be tolerated. The silver lining is that, in many cases, these incidents present a chance for the offenders, and the teams at large, to grow, learn, and become better.
+* The use of sexualized language or imagery and unwelcome sexual attention or
+  advances
+* Trolling, insulting/derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or electronic
+  address, without explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+  professional setting
 
-    The following should be handled by a line manager who has been informed of the incident
+## Our Responsibilities
 
-Try to get as much of the incident in written form. The important information to gather include the following:
+Project maintainers are responsible for clarifying the standards of acceptable
+behavior and are expected to take appropriate and fair corrective action in
+response to any instances of unacceptable behavior.
 
-    Name and team of the participant doing the harassing
-    The location in which the incident occurred
-    The behavior that was in violation
-    The approximate time of the behavior
-    The circumstances surrounding the incident
-    Other people involved in the incident
+Project maintainers have the right and responsibility to remove, edit, or
+reject comments, commits, code, wiki edits, issues, and other contributions
+that are not aligned to this Code of Conduct, or to ban temporarily or
+permanently any contributor for other behaviors that they deem inappropriate,
+threatening, offensive, or harmful.
 
-Depending on the severity/details of the incident, please follow these guidelines:
+## Scope
 
-    If there is any general threat to staff or any other doubts, summon security or police
-    Offer the victim a private place to sit
-    Ask "is there a friend or trusted person who you would like to be with you?" (if so, arrange for someone to fetch this person)
-    Ask them "how can I help?"
-    Provide them with your list of emergency contacts if they need help later
-    If everyone is presently physically safe, involve the police or security only at a victim's request
+This Code of Conduct applies both within project spaces and in public spaces
+when an individual is representing the project or its community. Examples of
+representing a project or community include using an official project e-mail
+address, posting via an official social media account, or acting as an appointed
+representative at an online or offline event. Representation of a project may be
+further defined and clarified by project maintainers.
 
-There are also some guidelines as to what not to do as an initial response:
+## Enforcement
 
-    Do not overtly invite them to withdraw the complaint or mention that withdrawal is OK. This suggests that you want them to do so, and is therefore coercive. "If you're OK with pursuing the complaint" suggests that you are by default pursuing it and is not coercive.
-    Do not ask for their advice on how to deal with the complaint. This is a staff responsibility.
-    Do not offer them input into penalties. This is the staff's responsibility.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported by contacting the project team at {{ email }}. All
+complaints will be reviewed and investigated and will result in a response that
+is deemed necessary and appropriate to the circumstances. The project team is
+obligated to maintain confidentiality with regard to the reporter of an incident.
+Further details of specific enforcement policies may be posted separately.
 
-The line manager who is handling the reported offence should find out the following:
+Project maintainers who do not follow or enforce the Code of Conduct in good
+faith may face temporary or permanent repercussions as determined by other
+members of the project's leadership.
 
-    What happened?
-    Are we doing anything about it?
-    Who is doing those things?
-    When are they doing them?
+## Attribution
 
-After the above has been identified and discussed, have an appropriate line manager communicate with the alleged harasser. Make sure to inform them of what has been reported about them.
+This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
+available at https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
 
-Allow the alleged harasser to give their side of the story. After this point, if the report stands, let the alleged harasser know what actions will be taken against them.
-
-Some things for the staff to consider when dealing with Code of Conduct offenders:
-
-    Warning the harasser to cease their behaviour and that any further reports will result in sanctions
-    Requiring that the harasser avoid any interaction with, and physical proximity to, their victim until a resolution or course of action has been decided upon
-    Requiring that the harasser not volunteer for future events your organisation runs (either indefinitely or for a certain time period)
-    Depending on the severity/details of the incident, requiring that the harasser immediately be sent home
-    Depending on the severity/details of the incident, removing a harasser from membership of relevant {NAME} organisations
-    Depending on the severity/details of the incident, publishing an account of the harassment and calling for the resignation of the harasser from their responsibilities (usually pursued by people without formal authority: may be called for if the harasser is a team leader, or refuses to stand aside from the conflict of interest)
-
-Give accused staff members a place to appeal to if there is one, but in the meantime the report stands. Keep in mind that it is not a good idea to encourage an apology from the harasser.
-
-It is very important how we deal with the incident publicly. Our policy is to make sure that everyone aware of the initial incident is also made aware that it is not according to policy and that official action has been taken - while still respecting the privacy of individual staff members. When speaking to individuals (those who are aware of the incident, but were not involved with the incident) about the incident it is a good idea to keep the details out.
-
-Depending on the incident, the head of responsible department, or designate, may decide to make one or more public announcements. If necessary, this will be done with a short announcement either during the plenary and/or through other channels. No one other than the head of responsible department or someone delegated authority from them should make any announcements. No personal information about either party will be disclosed as part of this process.
-
-If some members of staff were angered by the incident, it is best to apologise to them that the incident occurred to begin with. If there are residual hard feelings, suggest to them to write an email to the responsible head of department. It will be dealt with accordingly.
-Attribution
-
-This Code of Conduct was adapted from both Golang and the Golang UK Conference.
-
-Freely taken from https://gist.github.com/Integralist/4e84af31c483d0f5a182
+[homepage]: https://www.contributor-covenant.org
