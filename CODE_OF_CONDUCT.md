@@ -89,3 +89,5 @@ If some members of staff were angered by the incident, it is best to apologise t
 Attribution
 
 This Code of Conduct was adapted from both Golang and the Golang UK Conference.
+
+Freely taken from https://gist.github.com/Integralist/4e84af31c483d0f5a182
