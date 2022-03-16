@@ -1,3 +1,4 @@
+package org.hyde;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
