@@ -63,6 +63,13 @@
          <artifactId>picocli</artifactId>
          <version>4.6.3</version>
       </dependency>
+
+      <!-- MD to HTML Lib -->
+      <dependency>
+         <groupId>org.commonmark</groupId>
+         <artifactId>commonmark</artifactId>
+         <version>0.18.2</version>
+      </dependency>
    </dependencies>
 
    <build>
