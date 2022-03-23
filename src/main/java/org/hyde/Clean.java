@@ -3,6 +3,7 @@ package org.hyde;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 
 @Command(name = "clean")
@@ -17,6 +18,13 @@ class Clean implements Callable<Integer> {
 
    public static void main(String... args) {
       int exitCode = new CommandLine(new Clean()).execute(args);
+      String dirPath = args[1];
+
+      File path = new File(dirPath + "/build");
+      if (path.exists()) {
+         path.delete();
+      }
+
       System.exit(exitCode);
    }
-}
+}  
