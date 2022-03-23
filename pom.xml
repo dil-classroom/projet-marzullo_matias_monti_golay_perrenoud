@@ -107,17 +107,23 @@
          </plugin>
 
          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>appassembler-maven-plugin</artifactId>
-            <version>1.10</version>
+            <groupId>org.skife.maven</groupId>
+            <artifactId>really-executable-jar-maven-plugin</artifactId>
+            <version>1.4.1</version>
             <configuration>
-               <programs>
-                  <program>
-                     <mainClass>${main.class}</mainClass>
-                     <id>hyde</id>
-                  </program>
-               </programs>
+               <flags>-Xmx1G</flags>
+               <programFile>hyde</programFile>
+
             </configuration>
+
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>really-executable-jar</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>
