@@ -42,8 +42,8 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <main.class>org.hyde.Main</main.class>
-      <exec.mainClass>org.hyde.Main</exec.mainClass>
+      <main.class>org.hyde.Hyde</main.class>
+      <exec.mainClass>org.hyde.Hyde</exec.mainClass>
       <java.version>11</java.version>
       <junit.jupiter.version>5.4.2</junit.jupiter.version>
       <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
@@ -114,17 +114,23 @@
          </plugin>
 
          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>appassembler-maven-plugin</artifactId>
-            <version>1.10</version>
+            <groupId>org.skife.maven</groupId>
+            <artifactId>really-executable-jar-maven-plugin</artifactId>
+            <version>1.4.1</version>
             <configuration>
-               <programs>
-                  <program>
-                     <mainClass>${main.class}</mainClass>
-                     <id>hyde</id>
-                  </program>
-               </programs>
+               <flags>-Xmx1G</flags>
+               <programFile>hyde</programFile>
+
             </configuration>
+
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>really-executable-jar</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>
