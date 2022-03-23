@@ -14,9 +14,4 @@ class Build implements Callable<Integer> {
       System.out.println("Commande 'build'");
       return 0;
    }
-
-   public static void main(String... args) {
-      int exitCode = new CommandLine(new Build()).execute(args);
-      System.exit(exitCode);
-   }
 }

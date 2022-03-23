@@ -42,8 +42,8 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <main.class>org.hyde.Main</main.class>
-      <exec.mainClass>org.hyde.Main</exec.mainClass>
+      <main.class>org.hyde.Hyde</main.class>
+      <exec.mainClass>org.hyde.Hyde</exec.mainClass>
       <java.version>11</java.version>
       <junit.jupiter.version>5.4.2</junit.jupiter.version>
       <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
