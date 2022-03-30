@@ -82,10 +82,22 @@ class Build implements Callable<Integer> {
       Parser parser = Parser.builder().build();
       Node document = parser.parseReader(reader);
       HtmlRenderer renderer = HtmlRenderer.builder().build();
-      var htmlContent = renderer.render(document); // return txt to write in file
 
-      // Dump le contenu dans le .html correspondant :)
-      // TODO
+      var data = renderer.render(document);
+
+      File buildFile = new File(basePath + File.separator + "build" + File.separator + file + ".html");
+
+      try(FileOutputStream fos = new FileOutputStream(buildFile);
+          BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+         // convert string to byte array
+         byte[] bytes = data.getBytes();
+         //write byte array to file
+         bos.write(bytes);
+         bos.close();
+         fos.close();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
    }
 
    public static void main(String... args) {
