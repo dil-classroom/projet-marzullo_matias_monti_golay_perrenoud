@@ -22,16 +22,11 @@ class Build implements Callable<Integer> {
    @CommandLine.Parameters(index = "0", description = "The path where to build the site.")
    private Path basePath;
 
-
-   private File baseFile;
-   private File buildFile;
-
-
    @Override
    public Integer call() {
-      baseFile = new File(String.valueOf(basePath));
+      File baseFile = new File(String.valueOf(basePath));
       if (!(baseFile.isDirectory()) || !baseFile.exists()) return 1;
-      buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
+      File buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
 
       // Checks or creates that the build folder exists
       if (!buildFile.exists()) {
@@ -58,12 +53,6 @@ class Build implements Callable<Integer> {
       if (absPath.isFile()) {
          buildMD(file);
       } else {
-         // Créé un dossier correspondant dans le dossier build
-         File absBuildFolder = new File(buildFile + File.separator + file);
-         if (!absBuildFolder.exists() && !absBuildFolder.mkdirs()) {
-            throw new RuntimeException("Can't create folder '"+absBuildFolder+"' !");
-         }
-
          // Liste le contenu du dossier
          for (String subfile : Objects.requireNonNull(absPath.list())) {
             build(new File(String.valueOf(basePath.relativize(Path.of(absPath + File.separator + subfile)))));
@@ -71,30 +60,44 @@ class Build implements Callable<Integer> {
       }
    }
 
+   /**
+    * Builds the HTML code of a page from a .md
+    * @param file a .md, relative path from source folder
+    * @throws IOException If the file cannot be opened
+    */
    private void buildMD(File file) throws IOException {
+      // Checking that the given file is a md !
+      if (!file.toString().endsWith("md"))
+         throw new IllegalArgumentException("Only accepting md files !");
+
+      // Absolute path to the file, with given basePath in cmd
       File absFile = new File(basePath+File.separator+file);
 
-      if (absFile.isDirectory()) throw new IllegalArgumentException("'"+absFile+"' is a folder !");
+      // Checking that the file isn't a directory !
+      if (absFile.isDirectory() || !absFile.exists()) throw new IllegalArgumentException("'"+absFile+"' isn't a valid file !");
 
-      if (!absFile.getParentFile().exists()) absFile.getParentFile().mkdirs();
+      // Path to HTML file
+      File buildFile = new File(basePath + File.separator + "build" + File.separator + file + ".html");
 
+      // Checks that the corresponding folder exists in the build folder
+      if (!buildFile.getParentFile().exists() && !buildFile.getParentFile().mkdirs()) {
+         throw new RuntimeException("Can't create folder '"+buildFile.getParentFile()+"' !");
+      }
+
+      // Converts MD to HTML
       BufferedReader reader = new BufferedReader(new FileReader(absFile));
       Parser parser = Parser.builder().build();
       Node document = parser.parseReader(reader);
       HtmlRenderer renderer = HtmlRenderer.builder().build();
-
       var data = renderer.render(document);
 
-      File buildFile = new File(basePath + File.separator + "build" + File.separator + file + ".html");
-
-      try(FileOutputStream fos = new FileOutputStream(buildFile);
-          BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-         // convert string to byte array
+      // Dumps the datas to the HTML file
+      try(
+              FileOutputStream fos = new FileOutputStream(buildFile);
+              BufferedOutputStream bos = new BufferedOutputStream(fos)
+      ) {
          byte[] bytes = data.getBytes();
-         //write byte array to file
          bos.write(bytes);
-         bos.close();
-         fos.close();
       } catch (IOException e) {
          e.printStackTrace();
       }
