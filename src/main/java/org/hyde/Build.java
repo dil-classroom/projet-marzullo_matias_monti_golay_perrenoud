@@ -68,8 +68,7 @@ class Build implements Callable<Integer> {
     */
    private void buildMD(File file) throws IOException {
       // Checking that the given file is a md !
-      if (!file.toString().endsWith("md"))
-         throw new IllegalArgumentException("Only accepting md files !");
+      if (!file.toString().endsWith("md")) return;
 
       // Absolute path to the file, with given basePath in cmd
       File absFile = new File(basePath+File.separator+file);
