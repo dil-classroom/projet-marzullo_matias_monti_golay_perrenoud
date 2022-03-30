@@ -27,4 +27,4 @@ class Clean implements Callable<Integer> {
 
       System.exit(exitCode);
    }
-}  
+}
