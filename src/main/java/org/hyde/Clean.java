@@ -14,9 +14,4 @@ class Clean implements Callable<Integer> {
       System.out.println("Commande 'clean'");
       return 0;
    }
-
-   public static void main(String... args) {
-      int exitCode = new CommandLine(new Clean()).execute(args);
-      System.exit(exitCode);
-   }
 }

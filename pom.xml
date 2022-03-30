@@ -7,7 +7,7 @@
    <groupId>org.hyde</groupId>
    <version>0.0.1</version>
 
-   <description>Hyde - Another Static Site Generator</description>
+   <description>Jekyll's evil twin static site generator</description>
 
    <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
 
@@ -42,8 +42,8 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <main.class>org.hyde.Main</main.class>
-      <exec.mainClass>org.hyde.Main</exec.mainClass>
+      <main.class>org.hyde.Hyde</main.class>
+      <exec.mainClass>org.hyde.Hyde</exec.mainClass>
       <java.version>11</java.version>
       <junit.jupiter.version>5.4.2</junit.jupiter.version>
       <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
@@ -111,6 +111,66 @@
          <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven.surefire.plugin.version}</version>
+         </plugin>
+
+         <plugin>
+            <groupId>org.skife.maven</groupId>
+            <artifactId>really-executable-jar-maven-plugin</artifactId>
+            <version>1.4.1</version>
+            <configuration>
+               <flags>-Xmx1G</flags>
+               <programFile>${name}</programFile>
+
+            </configuration>
+
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>really-executable-jar</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>com.akathist.maven.plugins.launch4j</groupId>
+            <artifactId>launch4j-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>${name}</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>launch4j</goal>
+                  </goals>
+                  <configuration>
+                     <headerType>console</headerType>
+                     <outfile>target/${name}.exe</outfile>
+                     <jar>target/${name}-${version}.jar</jar>
+                     <errTitle>${name}</errTitle>
+                     <classPath>
+                        <mainClass>${main.class}</mainClass>
+                        <addDependencies>false</addDependencies>
+                        <preCp>anything</preCp>
+                     </classPath>
+                     <jre>
+                        <path>%JAVA_HOME%</path>
+                        <minVersion>${java.version}</minVersion>
+                     </jre>
+                     <versionInfo>
+                        <fileVersion>${version}.0</fileVersion>
+                        <txtFileVersion>${version}</txtFileVersion>
+                        <fileDescription>${description}</fileDescription>
+                        <copyright>MIT</copyright>
+                        <productVersion>${version}.0</productVersion>
+                        <txtProductVersion>${version}</txtProductVersion>
+                        <productName>${name}</productName>
+                        <internalName>${name}</internalName>
+                        <originalFilename>${name}.exe</originalFilename>
+                     </versionInfo>
+                  </configuration>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>
