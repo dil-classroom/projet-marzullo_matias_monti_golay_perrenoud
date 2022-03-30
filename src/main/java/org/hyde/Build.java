@@ -4,6 +4,8 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 import java.util.List;
@@ -18,46 +20,69 @@ class Build implements Callable<Integer> {
    public static final List<String> excluded = List.of("config.yaml", "build");
 
    @CommandLine.Parameters(index = "0", description = "The path where to build the site.")
-   private File folder;
-   private File buildPath;
+   private Path basePath;
+
+
+   private File baseFile;
+   private File buildFile;
+
 
    @Override
    public Integer call() {
-      if (!(folder.isDirectory()) || !folder.exists()) return 1;
-      buildPath = new File(folder.getAbsolutePath() + File.separator + "build");
+      baseFile = new File(String.valueOf(basePath));
+      if (!(baseFile.isDirectory()) || !baseFile.exists()) return 1;
+      buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
 
-      if (!buildPath.exists()) {
-         if (!buildPath.mkdir()) return 1;
+      // Checks or creates that the build folder exists
+      if (!buildFile.exists()) {
+         if (!buildFile.mkdir()) return 1;
       } else {
-         if (!buildPath.isDirectory()) return 1;
+         if (!buildFile.isDirectory()) return 1;
       }
 
+      // Starts the recursive building of the folder
       try {
-         build(folder);
-      } catch (IOException ignored) {
-         return 1;
+         build(new File(""));
+      } catch (IOException e) {
+         e.printStackTrace();
       }
 
       return 0;
    }
 
-   private static void build(File file) throws IOException {
+   private void build(File file) throws IOException {
       if (excluded.contains(file.getName())) return;
 
-      if (file.isFile()) {
+      var absPath = new File(basePath+File.separator+file);
+
+      if (absPath.isFile()) {
          buildMD(file);
       } else {
-         file.mkdir();
-         for (File subfile : file.listFiles()) build(subfile);
+         // Créé un dossier correspondant dans le dossier build
+         File absBuildFolder = new File(buildFile + File.separator + file);
+         if (!absBuildFolder.exists() && !absBuildFolder.mkdirs()) {
+            throw new RuntimeException("Can't create folder '"+absBuildFolder+"' !");
+         }
+
+         // Liste le contenu du dossier
+         for (String subfile : Objects.requireNonNull(absPath.list())) {
+            build(new File(String.valueOf(basePath.relativize(Path.of(absPath + File.separator + subfile)))));
+         }
       }
    }
 
-   private static void buildMD(File file) throws IOException {
-      BufferedReader reader = new BufferedReader(new FileReader(file));
+   private void buildMD(File file) throws IOException {
+      File absFile = new File(basePath+File.separator+file);
+
+      if (absFile.isDirectory()) throw new IllegalArgumentException("'"+absFile+"' is a folder !");
+
+      if (!absFile.getParentFile().exists()) absFile.getParentFile().mkdirs();
+
+      BufferedReader reader = new BufferedReader(new FileReader(absFile));
       Parser parser = Parser.builder().build();
       Node document = parser.parseReader(reader);
       HtmlRenderer renderer = HtmlRenderer.builder().build();
-      // renderer.render(document); // return txt to write in file
+      var htmlContent = renderer.render(document); // return txt to write in file
 
       // Dump le contenu dans le .html correspondant :)
       // TODO
