@@ -14,9 +14,4 @@ class New implements Callable<Integer> {
       System.out.println("Commande 'new'");
       return 0;
    }
-
-   public static void main(String... args) {
-      int exitCode = new CommandLine(new New()).execute(args);
-      System.exit(exitCode);
-   }
 }

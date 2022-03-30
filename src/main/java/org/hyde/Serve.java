@@ -14,9 +14,4 @@ class Serve implements Callable<Integer> {
       System.out.println("Commande 'serve'");
       return 0;
    }
-
-   public static void main(String... args) {
-      int exitCode = new CommandLine(new Serve()).execute(args);
-      System.exit(exitCode);
-   }
 }
