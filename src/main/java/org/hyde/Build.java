@@ -40,6 +40,7 @@ class Build implements Callable<Integer> {
          build(new File(""));
       } catch (IOException e) {
          e.printStackTrace();
+         return 1;
       }
 
       return 0;
