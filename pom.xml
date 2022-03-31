@@ -123,7 +123,7 @@
             <version>1.4.1</version>
             <configuration>
                <flags>-Xmx1G</flags>
-               <programFile>${name}</programFile>
+               <programFile>${project.name}</programFile>
 
             </configuration>
 
@@ -140,18 +140,19 @@
          <plugin>
             <groupId>com.akathist.maven.plugins.launch4j</groupId>
             <artifactId>launch4j-maven-plugin</artifactId>
+            <version>2.1.2</version>
             <executions>
                <execution>
-                  <id>${name}</id>
+                  <id>${project.name}</id>
                   <phase>package</phase>
                   <goals>
                      <goal>launch4j</goal>
                   </goals>
                   <configuration>
                      <headerType>console</headerType>
-                     <outfile>target/${name}.exe</outfile>
-                     <jar>target/${name}-${version}.jar</jar>
-                     <errTitle>${name}</errTitle>
+                     <outfile>target/${project.name}.exe</outfile>
+                     <jar>target/${project.name}-${project.version}.jar</jar>
+                     <errTitle>${project.name}</errTitle>
                      <classPath>
                         <mainClass>${main.class}</mainClass>
                         <addDependencies>false</addDependencies>
@@ -162,15 +163,15 @@
                         <minVersion>${java.version}</minVersion>
                      </jre>
                      <versionInfo>
-                        <fileVersion>${version}.0</fileVersion>
-                        <txtFileVersion>${version}</txtFileVersion>
-                        <fileDescription>${description}</fileDescription>
+                        <fileVersion>${project.version}.0</fileVersion>
+                        <txtFileVersion>${project.version}</txtFileVersion>
+                        <fileDescription>${project.description}</fileDescription>
                         <copyright>MIT</copyright>
-                        <productVersion>${version}.0</productVersion>
-                        <txtProductVersion>${version}</txtProductVersion>
-                        <productName>${name}</productName>
-                        <internalName>${name}</internalName>
-                        <originalFilename>${name}.exe</originalFilename>
+                        <productVersion>${project.version}.0</productVersion>
+                        <txtProductVersion>${project.version}</txtProductVersion>
+                        <productName>${project.name}</productName>
+                        <internalName>${project.name}</internalName>
+                        <originalFilename>${project.name}.exe</originalFilename>
                      </versionInfo>
                   </configuration>
                </execution>
