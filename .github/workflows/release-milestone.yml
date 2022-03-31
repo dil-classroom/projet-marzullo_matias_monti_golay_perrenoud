@@ -1,0 +1,29 @@
+---
+name: "pre-release"
+
+on:
+  milestone:
+    types: closed
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  pre-release:
+    name: "Pre Release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "./.github/workflows/maven.yml"
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            LICENSE
+            target/hyde.jar
+            target/hyde
+            target/hyde.exe
