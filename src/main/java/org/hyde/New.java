@@ -1,6 +1,5 @@
 package org.hyde;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -35,20 +34,25 @@ class New implements Callable<Integer> {
          }
 
          List<String> defaultConfigContent = Arrays.asList(
-                 "The first line",
-                 "The second line"
+                 "Default", "config"
          );
          Path configPath = Path.of(config.getPath());
          Files.write(configPath, defaultConfigContent, StandardCharsets.UTF_8);
 
          File index = new File("." + site + "/index.md");
-         if (!index.exists() && index.createNewFile()) {
+         if (!index.exists() && !index.createNewFile()) {
             throw new Exception("Failed to create index.md");
          }
 
          List<String> defaultIndexContent = Arrays.asList(
-                 "The first line",
-                 "The second line"
+                 "titre: Mon premier article",
+                 "auteur: Bertil Chapuis",
+                 "date: 2021-03-10",
+                 "---",
+                 "# Mon premier article",
+                 "## Mon sous-titre",
+                 "Le contenu de mon article.",
+                 "![Une image](./image.png)"
          );
          Path indexPath = Path.of(index.getPath());
          Files.write(indexPath, defaultIndexContent, StandardCharsets.UTF_8);
