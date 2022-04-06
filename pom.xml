@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <packaging>jar</packaging>
    <name>hyde</name>
    <artifactId>hyde</artifactId>
    <groupId>org.hyde</groupId>
-   <version>0.0.1-SNAPSHOT</version>
+   <version>0.0.1</version>
 
    <description>Jekyll's evil twin static site generator</description>
 
@@ -28,7 +28,8 @@
       <url>scm:git:https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
       <connection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
       <developerConnection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
-   </scm>
+     <tag>v0.0.1</tag>
+  </scm>
 
    <issueManagement>
       <system>Issues</system>
