@@ -28,6 +28,7 @@
       <url>scm:git:https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
       <connection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
       <developerConnection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
+      <tag>v{project.version}</tag>
    </scm>
 
    <issueManagement>
