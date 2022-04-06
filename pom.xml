@@ -5,7 +5,7 @@
    <name>hyde</name>
    <artifactId>hyde</artifactId>
    <groupId>org.hyde</groupId>
-   <version>0.0.1</version>
+   <version>0.0.1-SNAPSHOT</version>
 
    <description>Jekyll's evil twin static site generator</description>
 
@@ -25,9 +25,9 @@
    </organization>
 
    <scm>
-      <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
-      <connection>git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
-      <developerConnection>git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
+      <url>scm:git:https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
+      <connection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
+      <developerConnection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
    </scm>
 
    <issueManagement>
@@ -163,11 +163,11 @@
                         <minVersion>${java.version}</minVersion>
                      </jre>
                      <versionInfo>
-                        <fileVersion>${project.version}.0</fileVersion>
+                        <fileVersion>1.0.0.0</fileVersion>
                         <txtFileVersion>${project.version}</txtFileVersion>
                         <fileDescription>${project.description}</fileDescription>
                         <copyright>MIT</copyright>
-                        <productVersion>${project.version}.0</productVersion>
+                        <productVersion>1.0.0.0</productVersion>
                         <txtProductVersion>${project.version}</txtProductVersion>
                         <productName>${project.name}</productName>
                         <internalName>${project.name}</internalName>
@@ -176,6 +176,16 @@
                   </configuration>
                </execution>
             </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>3.0.0-M5</version>
+            <configuration>
+               <tagNameFormat>v@{project.version}</tagNameFormat>
+               <preparationGoals>clean verify</preparationGoals>
+            </configuration>
          </plugin>
       </plugins>
    </build>
