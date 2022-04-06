@@ -1,4 +1,5 @@
 target/
+build/
 demo
 pom.xml.tag
 pom.xml.releaseBackup
