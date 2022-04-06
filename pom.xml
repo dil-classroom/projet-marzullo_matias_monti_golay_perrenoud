@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project>
    <modelVersion>4.0.0</modelVersion>
    <packaging>jar</packaging>
    <name>hyde</name>
    <artifactId>hyde</artifactId>
    <groupId>org.hyde</groupId>
-   <version>0.0.2-SNAPSHOT</version>
+   <version>0.0.1</version>
 
    <description>Jekyll's evil twin static site generator</description>
 
@@ -25,10 +25,9 @@
    </organization>
 
    <scm>
-      <url>scm:git:https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
-      <connection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
-      <developerConnection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
-      <tag>v{project.version}</tag>
+      <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
+      <connection>git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
+      <developerConnection>git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
    </scm>
 
    <issueManagement>
