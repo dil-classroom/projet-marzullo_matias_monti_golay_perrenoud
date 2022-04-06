@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
           cache: maven   
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn release:prepare release:perform
       - name: Get Project Version from pom.xml
         uses: entimaniac/read-pom-version-action@1.0.0
         id: getVersion
