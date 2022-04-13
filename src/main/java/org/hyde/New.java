@@ -15,8 +15,8 @@ import java.util.concurrent.Callable;
 
 class New implements Callable<Integer> {
 
-   @Parameters(paramLabel = "SITE", description = "The site to build")
-   public String site;
+   @Parameters(arity = "0..1", paramLabel = "SITE", description = "The site to build")
+   public String site = "";
 
    @Override
    public Integer call() {
