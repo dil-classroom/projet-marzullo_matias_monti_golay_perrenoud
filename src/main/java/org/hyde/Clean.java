@@ -10,12 +10,12 @@ import java.util.concurrent.Callable;
 
 class Clean implements Callable<Integer> {
 
-   @CommandLine.Parameters(paramLabel = "SITE", description = "The site to clean")
-   public String site;
+   @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The site to clean")
+   public String site = ".";
 
    @Override
    public Integer call() {
-      System.out.println("Commande 'clean'");
+      System.out.println("clean " + site);
 
       File path = new File(site + "/build");
       if (path.exists()) {
