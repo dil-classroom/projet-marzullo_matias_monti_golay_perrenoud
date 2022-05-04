@@ -34,7 +34,7 @@ class New implements Callable<Integer> {
          }
 
          List<String> defaultConfigContent = Arrays.asList(
-                 "Default", "config"
+                 "titre: Mon premier site", "creator: Gabe Newell"
          );
          Path configPath = Path.of(config.getPath());
          Files.write(configPath, defaultConfigContent, StandardCharsets.UTF_8);
@@ -49,10 +49,12 @@ class New implements Callable<Integer> {
                  "auteur: Bertil Chapuis",
                  "date: 2021-03-10",
                  "---",
-                 "# Mon premier article",
-                 "## Mon sous-titre",
+                 "#[[ config.titre ]]",
+                 "## Mon premier article",
+                 "### Mon sous-titre",
                  "Le contenu de mon article.",
-                 "![Une image](./image.png)"
+                 "![Une image](./image.png)",
+                 "[[ config.creator ]] is the best"
          );
          Path indexPath = Path.of(index.getPath());
          Files.write(indexPath, defaultIndexContent, StandardCharsets.UTF_8);

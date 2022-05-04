@@ -5,10 +5,14 @@ import picocli.CommandLine.Command;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
@@ -61,6 +65,39 @@ class Build implements Callable<Integer> {
       }
    }
 
+   private String metadataTemplating(String data) throws IOException {
+      BufferedReader configReader = new BufferedReader(new FileReader(basePath+File.separator+"config.yaml"));
+      List<String> configFile = new ArrayList<>();
+
+      while(configReader.ready()){
+         configFile.add(configReader.readLine());
+      }
+
+      Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
+      Matcher configMatcher = configPattern.matcher(data);
+
+      Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
+      Matcher pageMatcher = pagePattern.matcher(data);
+
+      while (configMatcher.find()) {
+         String configName = configMatcher.group().substring(10, configMatcher.group().length() - 3);
+         System.out.println(configName);
+         String configValue = "";
+
+         for(String line : configFile){
+            if(line.contains(configName)){
+               configValue = line.substring(configName.length()+1);
+               break;
+            }
+         }
+
+         if(!configValue.isEmpty())
+            data = data.replaceFirst("\\[\\[ config.\\S+ ]]", configValue);
+      }
+
+      return data;
+   }
+
    /**
     * Builds the HTML code of a page from a .md
     * @param file a .md, relative path from source folder
@@ -91,6 +128,8 @@ class Build implements Callable<Integer> {
       HtmlRenderer renderer = HtmlRenderer.builder().build();
       var data = renderer.render(document);
 
+      data = metadataTemplating(data);
+
       // Dumps the datas to the HTML file
       try(
               FileOutputStream fos = new FileOutputStream(buildFile);
@@ -101,6 +140,8 @@ class Build implements Callable<Integer> {
       } catch (IOException e) {
          e.printStackTrace();
       }
+
+
    }
 
    public static void main(String... args) {
