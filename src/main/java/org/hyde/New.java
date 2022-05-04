@@ -61,7 +61,32 @@ class New implements Callable<Integer> {
          Path indexPath = Path.of(index.getPath());
          Files.write(indexPath, defaultIndexContent, StandardCharsets.UTF_8);
 
-      } catch (Exception e) {
+         File templateDirectory = new File("." + site + "/template");
+         if (!templateDirectory.exists() && !templateDirectory.mkdirs()) {
+            throw new Exception("Failed to create directory template");
+         }
+
+         File layout = new File("." + site + "/template/layout.html");
+         if (!layout.exists() && !layout.createNewFile()) {
+            throw new Exception("Failed to create layout.html");
+         }
+
+         List<String> layoutContent = Arrays.asList(
+                 "<html lang=\"en\">",
+                 "<head>",
+                 "   <meta charset=\"utf-8\">",
+                 "   <title>[[ config.site_name ]]  | [[ page.site_name ]] </title>",
+                 "</head>",
+                 "<body>",
+                 "   [[+ 'menu.html' ]]",
+                 "   [[ content ]]",
+                 "</body>",
+                 "</html>"
+         );
+         Path layoutPath = Path.of(layout.getPath());
+         Files.write(layoutPath, layoutContent, StandardCharsets.UTF_8);
+
+      } catch(Exception e) {
          e.printStackTrace();
       }
 
