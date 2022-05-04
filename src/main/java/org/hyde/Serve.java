@@ -1,5 +1,7 @@
 package org.hyde;
 
+import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -19,15 +21,9 @@ class Serve implements Callable<Integer> {
    public Integer call() {
       System.out.println("Commande 'serve'");
 
-      File htmlFile = new File(site + "/build/index.md.html");
-      System.out.println(htmlFile.getAbsolutePath());
-
-      try{
-         Desktop.getDesktop().browse(htmlFile.toURI());
-      }
-      catch(IOException e){
-         System.out.println("Cannot open the file");
-      }
+      Javalin.create(config -> {
+         config.addStaticFiles(site + "/build/index.md.html", Location.EXTERNAL);
+      }).start(8080);
 
       return 0;
    }
