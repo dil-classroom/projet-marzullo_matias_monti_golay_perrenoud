@@ -1,14 +1,11 @@
 package org.hyde;
 
+import java.util.concurrent.Callable;
+
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.Callable;
 
 @Command(name = "serve")
 
