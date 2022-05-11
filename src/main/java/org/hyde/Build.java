@@ -65,6 +65,12 @@ class Build implements Callable<Integer> {
       }
    }
 
+
+   /**
+    * Charges the metadatas requested in the file
+    * @param data the data of the html file
+    * @throws IOException If the reader couldn't read the config file
+    */
    private String metadataTemplating(String data) throws IOException {
       BufferedReader configReader = new BufferedReader(new FileReader(basePath+File.separator+"config.yaml"));
       List<String> configFile = new ArrayList<>();
@@ -74,10 +80,10 @@ class Build implements Callable<Integer> {
       }
 
       Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
+      Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
+
       Matcher configMatcher = configPattern.matcher(data);
 
-      Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
-      Matcher pageMatcher = pagePattern.matcher(data);
 
       while (configMatcher.find()) {
          String configName = configMatcher.group().substring(10, configMatcher.group().length() - 3);
@@ -93,6 +99,28 @@ class Build implements Callable<Integer> {
 
          if(!configValue.isEmpty())
             data = data.replaceFirst("\\[\\[ config.\\S+ ]]", configValue);
+      }
+
+      String pageMetadatas = data.substring(3, data.indexOf(".-.-.-."));
+      System.out.println(pageMetadatas + ".-.-.-.-");
+      data = data.substring(data.indexOf(".-.-.-.") + 8);
+      data = "<p>" + data;
+      System.out.println(data);
+
+
+      Matcher pageMatcher = pagePattern.matcher(data);
+
+      while (pageMatcher.find()) {
+         String configName = pageMatcher.group().substring(8, pageMatcher.group().length() - 3);
+         System.out.println(configName);
+         String configValue = "";
+
+         if(pageMetadatas.contains(configName)){
+            configValue = pageMetadatas.substring(pageMetadatas.indexOf(configName) + configName.length()+1, pageMetadatas.indexOf('\n', pageMetadatas.indexOf(configName)));
+         }
+
+         if(!configValue.isEmpty())
+            data = data.replaceFirst("\\[\\[ page.\\S+ ]]", configValue);
       }
 
       return data;

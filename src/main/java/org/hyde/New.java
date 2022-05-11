@@ -48,10 +48,11 @@ class New implements Callable<Integer> {
                  "titre: Mon premier article",
                  "auteur: Bertil Chapuis",
                  "date: 2021-03-10",
-                 "---",
+                 ".-.-.-.",
                  "#[[ config.titre ]]",
-                 "## Mon premier article",
+                 "## [[ page.titre ]]",
                  "### Mon sous-titre",
+                 "[[ page.auteur ]] - [[ page.date ]]",
                  "Le contenu de mon article.",
                  "![Une image](./image.png)",
                  "[[ config.creator ]] is the best"
