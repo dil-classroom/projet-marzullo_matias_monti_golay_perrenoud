@@ -1,6 +1,6 @@
 ---
 name: Standard issue template
-about: Standard issue template
+about: Standard issue template with time estimates
 title: ''
 labels: ''
 assignees: ''
@@ -19,3 +19,5 @@ Add a list of optional tasks
 - Required: 
 - Optimistic: 
 - Pessimistic:
+
+**Effective time taken: **
