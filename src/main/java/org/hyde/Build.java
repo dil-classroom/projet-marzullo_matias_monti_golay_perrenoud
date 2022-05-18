@@ -56,6 +56,7 @@ class Build implements Callable<Integer> {
       var absPath = new File(basePath+File.separator+file);
 
       if (absPath.isFile()) {
+         metadataTemplating(file);
          buildMD(file);
       } else {
          // Liste le contenu du dossier
@@ -68,12 +69,21 @@ class Build implements Callable<Integer> {
 
    /**
     * Charges the metadatas requested in the file
-    * @param data the data of the html file
+    * @param file path to the md file
     * @throws IOException If the reader couldn't read the config file
     */
-   private String metadataTemplating(String data) throws IOException {
+   private void metadataTemplating(File file) throws IOException {
+      if (!file.toString().endsWith("md")) return;
+
       BufferedReader configReader = new BufferedReader(new FileReader(basePath+File.separator+"config.yaml"));
+      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+file));
       List<String> configFile = new ArrayList<>();
+      StringBuilder data = new StringBuilder();
+
+      while(mdReader.ready()){
+         data.append(mdReader.readLine()).append("\n");
+      }
+      mdReader.close();
 
       while(configReader.ready()){
          configFile.add(configReader.readLine());
@@ -82,12 +92,11 @@ class Build implements Callable<Integer> {
       Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
       Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
 
-      Matcher configMatcher = configPattern.matcher(data);
+      Matcher configMatcher = configPattern.matcher(data.toString());
 
 
       while (configMatcher.find()) {
          String configName = configMatcher.group().substring(10, configMatcher.group().length() - 3);
-         System.out.println(configName);
          String configValue = "";
 
          for(String line : configFile){
@@ -98,32 +107,32 @@ class Build implements Callable<Integer> {
          }
 
          if(!configValue.isEmpty())
-            data = data.replaceFirst("\\[\\[ config.\\S+ ]]", configValue);
+            data = new StringBuilder(data.toString().replaceFirst("\\[\\[ config.\\S+ ]]", configValue));
       }
 
-      String pageMetadatas = data.substring(3, data.indexOf(".-.-.-."));
-      System.out.println(pageMetadatas + ".-.-.-.-");
-      data = data.substring(data.indexOf(".-.-.-.") + 8);
-      data = "<p>" + data;
-      System.out.println(data);
+      if(data.toString().startsWith("---")){
+         String pageMetadatas = data.substring(0, data.indexOf("..."));
+         data = new StringBuilder(data.substring(data.indexOf("...") + 4));;
 
+         Matcher pageMatcher = pagePattern.matcher(data.toString());
 
-      Matcher pageMatcher = pagePattern.matcher(data);
+         while (pageMatcher.find()) {
+            String configName = pageMatcher.group().substring(8, pageMatcher.group().length() - 3);
+            String configValue = "";
 
-      while (pageMatcher.find()) {
-         String configName = pageMatcher.group().substring(8, pageMatcher.group().length() - 3);
-         System.out.println(configName);
-         String configValue = "";
+            if(pageMetadatas.contains(configName)){
+               configValue = pageMetadatas.substring(pageMetadatas.indexOf(configName) + configName.length()+1, pageMetadatas.indexOf('\n', pageMetadatas.indexOf(configName)));
+            }
 
-         if(pageMetadatas.contains(configName)){
-            configValue = pageMetadatas.substring(pageMetadatas.indexOf(configName) + configName.length()+1, pageMetadatas.indexOf('\n', pageMetadatas.indexOf(configName)));
+            if(!configValue.isEmpty())
+               data = new StringBuilder(data.toString().replaceFirst("\\[\\[ page.\\S+ ]]", configValue));
          }
-
-         if(!configValue.isEmpty())
-            data = data.replaceFirst("\\[\\[ page.\\S+ ]]", configValue);
       }
 
-      return data;
+      BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+file));
+
+      mdWriter.write(String.valueOf(data));
+      mdWriter.close();
    }
 
    /**
@@ -155,8 +164,6 @@ class Build implements Callable<Integer> {
       Node document = parser.parseReader(reader);
       HtmlRenderer renderer = HtmlRenderer.builder().build();
       var data = renderer.render(document);
-
-      data = metadataTemplating(data);
 
       // Dumps the datas to the HTML file
       try(

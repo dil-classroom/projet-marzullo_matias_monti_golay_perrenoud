@@ -45,10 +45,11 @@ class New implements Callable<Integer> {
          }
 
          List<String> defaultIndexContent = Arrays.asList(
+                 "---",
                  "titre: Mon premier article",
                  "auteur: Bertil Chapuis",
                  "date: 2021-03-10",
-                 ".-.-.-.",
+                 "...",
                  "#[[ config.titre ]]",
                  "## [[ page.titre ]]",
                  "### Mon sous-titre",
