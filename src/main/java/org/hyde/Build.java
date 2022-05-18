@@ -55,8 +55,9 @@ class Build implements Callable<Integer> {
       var absPath = new File(basePath+File.separator+file);
 
       if (absPath.isFile()) {
-         checkFileInclusion(file);
          buildMD(file);
+         if (file.toString().endsWith(".md"))
+            checkFileInclusion(file + ".html");
       } else {
          // Liste le contenu du dossier
          for (String subfile : Objects.requireNonNull(absPath.list())) {
@@ -68,13 +69,13 @@ class Build implements Callable<Integer> {
 
    /**
     * Check for file inclusions and charges them
-    * @param file path to the md file
+    * @param file path to the HTML file
     * @throws IOException If the reader couldn't read the file
     */
-   private void checkFileInclusion(File file) throws IOException {
-      if (!file.toString().endsWith("md")) return;
+   private void checkFileInclusion(String file) throws IOException {
+      if (!file.endsWith(".html")) return;
 
-      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+file));
+      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+"build"+File.separator+file));
       StringBuilder data = new StringBuilder();
 
       while(mdReader.ready()){
@@ -91,15 +92,16 @@ class Build implements Callable<Integer> {
          String fileName = fileMatcher.group().substring(5, fileMatcher.group().length() - 4);
          System.out.println(fileName);
 
-         BufferedReader fileInclusionReader = new BufferedReader(new FileReader(basePath+File.separator+fileName));
-         BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+file));
+         BufferedReader fileInclusionReader = new BufferedReader(new FileReader(basePath+File.separator+"template"+File.separator+fileName));
+         System.out.println(basePath+File.separator+"template"+File.separator+fileName);
+         BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+"build"+File.separator+file));
          StringBuilder fileInclusionData = new StringBuilder();
 
          while(fileInclusionReader.ready()){
             fileInclusionData.append(fileInclusionReader.readLine()).append("\n");
          }
 
-         data.insert(fileMatcher.start(), fileInclusionData);
+         data = new StringBuilder(data.toString().replaceFirst("\\[\\[\\+ '.+\\.html' ]]", fileInclusionData.toString()));
 
          mdWriter.write(String.valueOf(data));
          mdWriter.close();
