@@ -108,6 +108,38 @@ class Build implements Callable<Integer> {
       }
    }
 
+
+   /**
+    * Check for layout template, if present, charges content in there
+    * @param data content of the parsed html
+    * @throws IOException If the reader couldn't read the file
+    */
+   private String putContentToLayout(String data) throws IOException {
+      File file = new File(basePath+File.separator+"template"+File.separator+"layout.html");
+      if(!file.exists())
+         return data;
+      System.out.println("test");
+
+      BufferedReader fileReader = new BufferedReader(new FileReader(file));
+      StringBuilder layoutcontent = new StringBuilder();
+
+      while(fileReader.ready()){
+         layoutcontent.append(fileReader.readLine()).append("\n");
+      }
+      fileReader.close();
+
+      Pattern filePattern = Pattern.compile("\\[\\[ content ]]");
+
+      Matcher fileMatcher = filePattern.matcher(layoutcontent);
+
+
+      while (fileMatcher.find()) {
+         data = String.valueOf(new StringBuilder(layoutcontent.toString().replaceFirst("\\[\\[ content ]]", data)));
+      }
+
+      return data;
+   }
+
    /**
     * Builds the HTML code of a page from a .md
     * @param file a .md, relative path from source folder
@@ -137,6 +169,8 @@ class Build implements Callable<Integer> {
       Node document = parser.parseReader(reader);
       HtmlRenderer renderer = HtmlRenderer.builder().build();
       var data = renderer.render(document);
+
+      data = putContentToLayout(data);
 
       // Dumps the datas to the HTML file
       try(

@@ -56,8 +56,7 @@ class New implements Callable<Integer> {
                  "[[ page.auteur ]] - [[ page.date ]]",
                  "Le contenu de mon article.",
                  "![Une image](./image.png)",
-                 "[[ config.creator ]] is the best",
-                 "[[+ 'template.html' ]]"
+                 "[[ config.creator ]] is the best"
          );
          Path indexPath = Path.of(index.getPath());
          Files.write(indexPath, defaultIndexContent, StandardCharsets.UTF_8);
@@ -76,10 +75,9 @@ class New implements Callable<Integer> {
                  "<html lang=\"en\">",
                  "<head>",
                  "   <meta charset=\"utf-8\">",
-                 "   <title>[[ config.site_name ]]  | [[ page.site_name ]] </title>",
                  "</head>",
                  "<body>",
-                 "   [[+ 'menu.html' ]]",
+                 "   [[+ 'template.html' ]]",
                  "   [[ content ]]",
                  "</body>",
                  "</html>"
