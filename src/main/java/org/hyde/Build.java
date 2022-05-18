@@ -5,10 +5,14 @@ import picocli.CommandLine.Command;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
@@ -52,6 +56,7 @@ class Build implements Callable<Integer> {
       var absPath = new File(basePath+File.separator+file);
 
       if (absPath.isFile()) {
+         metadataTemplating(file);
          buildMD(file);
       } else {
          // Liste le contenu du dossier
@@ -59,6 +64,75 @@ class Build implements Callable<Integer> {
             build(new File(String.valueOf(basePath.relativize(Path.of(absPath + File.separator + subfile)))));
          }
       }
+   }
+
+
+   /**
+    * Charges the metadatas requested in the file
+    * @param file path to the md file
+    * @throws IOException If the reader couldn't read the config file
+    */
+   private void metadataTemplating(File file) throws IOException {
+      if (!file.toString().endsWith("md")) return;
+
+      BufferedReader configReader = new BufferedReader(new FileReader(basePath+File.separator+"config.yaml"));
+      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+file));
+      List<String> configFile = new ArrayList<>();
+      StringBuilder data = new StringBuilder();
+
+      while(mdReader.ready()){
+         data.append(mdReader.readLine()).append("\n");
+      }
+      mdReader.close();
+
+      while(configReader.ready()){
+         configFile.add(configReader.readLine());
+      }
+
+      Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
+      Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
+
+      Matcher configMatcher = configPattern.matcher(data.toString());
+
+
+      while (configMatcher.find()) {
+         String configName = configMatcher.group().substring(10, configMatcher.group().length() - 3);
+         String configValue = "";
+
+         for(String line : configFile){
+            if(line.contains(configName)){
+               configValue = line.substring(configName.length()+1);
+               break;
+            }
+         }
+
+         if(!configValue.isEmpty())
+            data = new StringBuilder(data.toString().replaceFirst("\\[\\[ config.\\S+ ]]", configValue));
+      }
+
+      if(data.toString().startsWith("---")){
+         String pageMetadatas = data.substring(0, data.indexOf("..."));
+         data = new StringBuilder(data.substring(data.indexOf("...") + 4));;
+
+         Matcher pageMatcher = pagePattern.matcher(data.toString());
+
+         while (pageMatcher.find()) {
+            String configName = pageMatcher.group().substring(8, pageMatcher.group().length() - 3);
+            String configValue = "";
+
+            if(pageMetadatas.contains(configName)){
+               configValue = pageMetadatas.substring(pageMetadatas.indexOf(configName) + configName.length()+1, pageMetadatas.indexOf('\n', pageMetadatas.indexOf(configName)));
+            }
+
+            if(!configValue.isEmpty())
+               data = new StringBuilder(data.toString().replaceFirst("\\[\\[ page.\\S+ ]]", configValue));
+         }
+      }
+
+      BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+file));
+
+      mdWriter.write(String.valueOf(data));
+      mdWriter.close();
    }
 
    /**
@@ -101,6 +175,8 @@ class Build implements Callable<Integer> {
       } catch (IOException e) {
          e.printStackTrace();
       }
+
+
    }
 
    public static void main(String... args) {
