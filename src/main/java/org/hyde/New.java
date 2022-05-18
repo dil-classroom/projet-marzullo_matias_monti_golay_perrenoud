@@ -77,8 +77,8 @@ class New implements Callable<Integer> {
                  "   <meta charset=\"utf-8\">",
                  "</head>",
                  "<body>",
-                 "   [[+ 'template.html' ]]",
                  "   [[ content ]]",
+                 "   [[+ 'template.html' ]]",
                  "</body>",
                  "</html>"
          );
@@ -91,8 +91,8 @@ class New implements Callable<Integer> {
          }
 
          List<String> templateContent = Arrays.asList(
-                 "<p>AIE AIE AIE AIE CARAMBA</p>",
-                 "<p>Aimes-tu peler des patates</p>"
+                 "<p>Cousin à droite, cousin à gauche</p>",
+                 "<p>Tout le monde fait ca mon pote</p>"
          );
          Path templatePath = Path.of(template.getPath());
          Files.write(templatePath, templateContent, StandardCharsets.UTF_8);

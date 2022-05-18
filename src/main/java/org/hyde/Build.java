@@ -143,7 +143,7 @@ class Build implements Callable<Integer> {
       return data;
    }
   
-  
+  /*
     * Charges the metadatas requested in the file
     * @param file path to the md file
     * @throws IOException If the reader couldn't read the config file
