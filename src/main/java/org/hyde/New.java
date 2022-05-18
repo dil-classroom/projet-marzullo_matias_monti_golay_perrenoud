@@ -52,7 +52,8 @@ class New implements Callable<Integer> {
                  "# Mon premier article",
                  "## Mon sous-titre",
                  "Le contenu de mon article.",
-                 "![Une image](./image.png)"
+                 "![Une image](./image.png)",
+                 ""
          );
          Path indexPath = Path.of(index.getPath());
          Files.write(indexPath, defaultIndexContent, StandardCharsets.UTF_8);

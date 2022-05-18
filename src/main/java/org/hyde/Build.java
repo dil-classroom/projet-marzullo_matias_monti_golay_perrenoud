@@ -5,10 +5,13 @@ import picocli.CommandLine.Command;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
@@ -52,12 +55,54 @@ class Build implements Callable<Integer> {
       var absPath = new File(basePath+File.separator+file);
 
       if (absPath.isFile()) {
+         checkFileInclusion(file);
          buildMD(file);
       } else {
          // Liste le contenu du dossier
          for (String subfile : Objects.requireNonNull(absPath.list())) {
             build(new File(String.valueOf(basePath.relativize(Path.of(absPath + File.separator + subfile)))));
          }
+      }
+   }
+
+
+   /**
+    * Check for file inclusions and charges them
+    * @param file path to the md file
+    * @throws IOException If the reader couldn't read the file
+    */
+   private void checkFileInclusion(File file) throws IOException {
+      if (!file.toString().endsWith("md")) return;
+
+      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+file));
+      StringBuilder data = new StringBuilder();
+
+      while(mdReader.ready()){
+         data.append(mdReader.readLine()).append("\n");
+      }
+      mdReader.close();
+
+      Pattern filePattern = Pattern.compile("\\[\\[\\+ '.+\\.html' ]]");
+
+      Matcher fileMatcher = filePattern.matcher(data.toString());
+
+
+      while (fileMatcher.find()) {
+         String fileName = fileMatcher.group().substring(5, fileMatcher.group().length() - 4);
+         System.out.println(fileName);
+
+         BufferedReader fileInclusionReader = new BufferedReader(new FileReader(basePath+File.separator+fileName));
+         BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+file));
+         StringBuilder fileInclusionData = new StringBuilder();
+
+         while(fileInclusionReader.ready()){
+            fileInclusionData.append(fileInclusionReader.readLine()).append("\n");
+         }
+
+         data.insert(fileMatcher.start(), fileInclusionData);
+
+         mdWriter.write(String.valueOf(data));
+         mdWriter.close();
       }
    }
 
