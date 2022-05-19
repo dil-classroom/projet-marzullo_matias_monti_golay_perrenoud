@@ -1,5 +1,5 @@
 ---
-name: "Create pre-release on Milestone closed"
+name: "Create release on Milestone closed"
 
 on:
   milestone:
@@ -7,7 +7,7 @@ on:
 
 jobs:    
   pre-release:
-    name: "Pre Release on Milestone"
+    name: "Release on Milestone closed"
     runs-on: "ubuntu-latest"
     if: "!contains(github.event.head_commit.message, '[CI skip]')"
 
