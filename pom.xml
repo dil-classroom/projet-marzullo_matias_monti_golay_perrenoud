@@ -5,11 +5,11 @@
    <name>hyde</name>
    <artifactId>hyde</artifactId>
    <groupId>org.hyde</groupId>
-   <version>0.0.1</version>
+   <version>0.0.1-SNAPSHOT</version>
 
    <description>Jekyll's evil twin static site generator</description>
 
-   <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
+   <url>${project.scm.url}</url>
 
    <licenses>
       <license>
@@ -25,25 +25,27 @@
    </organization>
 
    <scm>
-      <url>scm:git:https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
-      <connection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
-      <developerConnection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
-     <tag>v0.0.1</tag>
+      <url>scm:git:${project.scm.url}</url>
+      <connection>scm:git:git@github.com:${project.scm}.git</connection>
+      <developerConnection>scm:git:git@github.com:${project.scm}.git</developerConnection>
+     <tag>HEAD</tag>
   </scm>
 
    <issueManagement>
       <system>Issues</system>
-      <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/issues</url>
+      <url>${project.scm.url}/issues</url>
    </issueManagement>
 
    <ciManagement>
       <system>Pipelines</system>
-      <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/pipelines</url>
+      <url>${project.scm.url}/pipelines</url>
    </ciManagement>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <main.class>org.hyde.Hyde</main.class>
+      <project.scm>dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</project.scm>
+      <project.scm.url>https://github.com/${project.scm}</project.scm.url>
+      <project.main.class>org.hyde.Hyde</project.main.class>
       <exec.mainClass>org.hyde.Hyde</exec.mainClass>
       <java.version>11</java.version>
       <junit.jupiter.version>5.4.2</junit.jupiter.version>
@@ -74,9 +76,6 @@
          <artifactId>slf4j-simple</artifactId>
          <version>1.7.31</version>
       </dependency>
-
-
-      <!-- MD to HTML Lib -->
       <dependency>
          <groupId>org.commonmark</groupId>
          <artifactId>commonmark</artifactId>
@@ -113,7 +112,7 @@
                      <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                            <manifestEntries>
-                              <Main-Class>${main.class}</Main-Class>
+                              <Main-Class>${project.main.class}</Main-Class>
                               <Implementation-Title>${project.artifactId}</Implementation-Title>
                               <Implementation-Version>${project.version}</Implementation-Version>
                            </manifestEntries>
@@ -166,7 +165,7 @@
                      <jar>target/${project.name}-${project.version}.jar</jar>
                      <errTitle>${project.name}</errTitle>
                      <classPath>
-                        <mainClass>${main.class}</mainClass>
+                        <mainClass>${project.main.class}</mainClass>
                         <addDependencies>false</addDependencies>
                         <preCp>anything</preCp>
                      </classPath>
@@ -196,6 +195,7 @@
             <version>3.0.0-M5</version>
             <configuration>
                <tagNameFormat>v@{project.version}</tagNameFormat>
+               <scmCommentPrefix>[CI skip]</scmCommentPrefix>
                <preparationGoals>clean verify</preparationGoals>
             </configuration>
          </plugin>
