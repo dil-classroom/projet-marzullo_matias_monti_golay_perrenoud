@@ -1,0 +1,47 @@
+---
+name: "Create release on Milestone closed"
+
+on:
+  milestone:
+    types: closed
+
+jobs:    
+  pre-release:
+    name: "Release on Milestone closed"
+    runs-on: "ubuntu-latest"
+    if: "!contains(github.event.head_commit.message, '[CI skip]')"
+
+    steps:
+      - uses: actions/checkout@v2
+          
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+          
+      - name: Build with Maven
+        uses: lothindir/github-actions-maven-release@master
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          git-release-bot-name: "release-bot-github "
+          git-release-bot-email: "release.bot.github@gmail.com"
+          release-branch-name: "main"
+          version-minor: true
+          maven-args: "-Ddockerfile.skip -DdockerCompose.skip -Dmaven.deploy.skip=true"
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64/
+        
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          draft: true
+          prerelease: false
+          title: "Sprint release"
+          files: |
+            LICENSE
+            target/hyde-*.jar
+            target/hyde
+            target/hyde.exe
