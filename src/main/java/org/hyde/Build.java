@@ -62,6 +62,8 @@ class Build implements Callable<Integer> {
       if (absPath.isFile()) {
          metadataTemplating(file);
          buildMD(file);
+         if (file.toString().endsWith(".md"))
+            checkFileInclusion(file + ".html");
       } else {
          // Liste le contenu du dossier
          for (String subfile : Objects.requireNonNull(absPath.list())) {
@@ -71,6 +73,80 @@ class Build implements Callable<Integer> {
    }
 
    /**
+    * Check for file inclusions and charges them
+    * @param file path to the HTML file
+    * @throws IOException If the reader couldn't read the file
+    */
+   private void checkFileInclusion(String file) throws IOException {
+      if (!file.endsWith(".html")) return;
+
+      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+"build"+File.separator+file));
+     
+      StringBuilder data = new StringBuilder();
+
+      while(mdReader.ready()){
+         data.append(mdReader.readLine()).append("\n");
+      }
+      mdReader.close();
+     
+      Pattern filePattern = Pattern.compile("\\[\\[\\+ '.+\\.html' ]]");
+
+      Matcher fileMatcher = filePattern.matcher(data.toString());
+
+
+      while (fileMatcher.find()) {
+         String fileName = fileMatcher.group().substring(5, fileMatcher.group().length() - 4);
+         System.out.println(fileName);
+
+         BufferedReader fileInclusionReader = new BufferedReader(new FileReader(basePath+File.separator+"template"+File.separator+fileName));
+         System.out.println(basePath+File.separator+"template"+File.separator+fileName);
+         BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+"build"+File.separator+file));
+         StringBuilder fileInclusionData = new StringBuilder();
+
+         while(fileInclusionReader.ready()){
+            fileInclusionData.append(fileInclusionReader.readLine()).append("\n");
+         }
+
+         data = new StringBuilder(data.toString().replaceFirst("\\[\\[\\+ '.+\\.html' ]]", fileInclusionData.toString()));
+
+         mdWriter.write(String.valueOf(data));
+         mdWriter.close();
+      }
+   }
+
+
+   /**
+    * Check for layout template, if present, charges content in there
+    * @param data content of the parsed html
+    * @throws IOException If the reader couldn't read the file
+    */
+   private String putContentToLayout(String data) throws IOException {
+      File file = new File(basePath+File.separator+"template"+File.separator+"layout.html");
+      if(!file.exists())
+         return data;
+      System.out.println("test");
+
+      BufferedReader fileReader = new BufferedReader(new FileReader(file));
+      StringBuilder layoutcontent = new StringBuilder();
+
+      while(fileReader.ready()){
+         layoutcontent.append(fileReader.readLine()).append("\n");
+      }
+      fileReader.close();
+
+      Pattern filePattern = Pattern.compile("\\[\\[ content ]]");
+
+      Matcher fileMatcher = filePattern.matcher(layoutcontent);
+
+
+      while (fileMatcher.find()) {
+         data = String.valueOf(new StringBuilder(layoutcontent.toString().replaceFirst("\\[\\[ content ]]", data)));
+      }
+
+      return data;
+   }
+  
+  /*
     * Charges the metadatas requested in the file
     * 
     * @param file path to the md file
@@ -91,12 +167,10 @@ class Build implements Callable<Integer> {
          while (mdReader.ready()) {
             data.append(mdReader.readLine()).append("\n");
          }
-         mdReader.close();
 
          while (configReader.ready()) {
             configFile.add(configReader.readLine());
          }
-         configReader.close();
 
          Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
          Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
@@ -140,7 +214,6 @@ class Build implements Callable<Integer> {
          }
 
          mdWriter.write(String.valueOf(data));
-         mdWriter.close();
       } catch (Exception e) {
          System.err.println("An error occured while converting to HTML");
          System.err.println(e.getMessage());
@@ -179,6 +252,8 @@ class Build implements Callable<Integer> {
       Node document = parser.parseReader(reader);
       HtmlRenderer renderer = HtmlRenderer.builder().build();
       var data = renderer.render(document);
+
+      data = putContentToLayout(data);
 
       // Dumps the datas to the HTML file
       try (
