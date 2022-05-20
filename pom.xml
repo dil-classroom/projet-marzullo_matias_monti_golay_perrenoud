@@ -20,7 +20,7 @@
    </licenses>
 
    <organization>
-      <name>marzullo_matias_monti_golay_perrenoud</name>
+      <name>Marzullo, Matias, Monti, Golay and Perrenoud</name>
       <url>https://github.com/orgs/dil-classroom/teams/marzullo_matias_monti</url>
    </organization>
 
@@ -129,6 +129,47 @@
          </plugin>
 
          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.4.0</version>
+            <executions>
+                <execution>
+                    <id>generate-javadoc</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>javadoc</goal>
+                    </goals>
+                  <configuration>
+                     <show>private</show>
+                     <stylesheetfile>src/main/resources/stylesheet.css</stylesheetfile>
+                     <windowtitle>${project.name} Documentation</windowtitle>
+                  </configuration>
+                </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>docs-assembly</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+                  <configuration>
+                     <finalName>${project.name}-javadoc</finalName>
+                     <appendAssemblyId>false</appendAssemblyId>
+                     <descriptors>
+                        <descriptor>src/main/resources/assemble.xml</descriptor>
+                     </descriptors>
+                  </configuration>
+               </execution>
+            </executions>
+            </plugin>
+
+
+         <plugin>
             <groupId>org.skife.maven</groupId>
             <artifactId>really-executable-jar-maven-plugin</artifactId>
             <version>1.4.1</version>
@@ -137,7 +178,6 @@
                <programFile>${project.name}</programFile>
 
             </configuration>
-
             <executions>
                <execution>
                   <phase>package</phase>
