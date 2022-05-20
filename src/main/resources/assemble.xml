@@ -10,5 +10,12 @@
       <directory>${project.build.directory}/site/apidocs</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>LICENSE*</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </assembly>
