@@ -29,14 +29,17 @@ class Build implements Callable<Integer> {
    @Override
    public Integer call() {
       File baseFile = new File(String.valueOf(basePath));
-      if (!(baseFile.isDirectory()) || !baseFile.exists()) return 1;
+      if (!(baseFile.isDirectory()) || !baseFile.exists())
+         return 1;
       File buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
 
       // Checks or creates that the build folder exists
       if (!buildFile.exists()) {
-         if (!buildFile.mkdir()) return 1;
+         if (!buildFile.mkdir())
+            return 1;
       } else {
-         if (!buildFile.isDirectory()) return 1;
+         if (!buildFile.isDirectory())
+            return 1;
       }
 
       // Starts the recursive building of the folder
@@ -51,9 +54,10 @@ class Build implements Callable<Integer> {
    }
 
    private void build(File file) throws IOException {
-      if (excluded.contains(file.getName())) return;
+      if (excluded.contains(file.getName()))
+         return;
 
-      var absPath = new File(basePath+File.separator+file);
+      var absPath = new File(basePath + File.separator + file);
 
       if (absPath.isFile()) {
          metadataTemplating(file);
@@ -67,7 +71,6 @@ class Build implements Callable<Integer> {
          }
       }
    }
-
 
    /**
     * Check for file inclusions and charges them
@@ -145,94 +148,102 @@ class Build implements Callable<Integer> {
   
   /*
     * Charges the metadatas requested in the file
+    * 
     * @param file path to the md file
     * @throws IOException If the reader couldn't read the config file
     */
    private void metadataTemplating(File file) throws IOException {
-      if (!file.toString().endsWith("md")) return;
+      if (!file.toString().endsWith("md"))
+         return;
 
-      BufferedReader configReader = new BufferedReader(new FileReader(basePath+File.separator+"config.yaml"));
-      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+file));
-      List<String> configFile = new ArrayList<>();
-  
-      StringBuilder data = new StringBuilder();
+      try (
+            BufferedReader configReader = new BufferedReader(new FileReader(basePath + File.separator + "config.yaml"));
+            BufferedReader mdReader = new BufferedReader(new FileReader(basePath + File.separator + file));
+            BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath + File.separator + file))) {
 
-      while(mdReader.ready()){
-         data.append(mdReader.readLine()).append("\n");
-      }
-      mdReader.close();
-      while(configReader.ready()){
-         configFile.add(configReader.readLine());
-      }
+         List<String> configFile = new ArrayList<>();
+         StringBuilder data = new StringBuilder();
 
-      Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
-      Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
-
-      Matcher configMatcher = configPattern.matcher(data.toString());
-
-
-      while (configMatcher.find()) {
-         String configName = configMatcher.group().substring(10, configMatcher.group().length() - 3);
-         String configValue = "";
-
-         for(String line : configFile){
-            if(line.contains(configName)){
-               configValue = line.substring(configName.length()+1);
-               break;
-            }
+         while (mdReader.ready()) {
+            data.append(mdReader.readLine()).append("\n");
          }
 
-         if(!configValue.isEmpty())
-            data = new StringBuilder(data.toString().replaceFirst("\\[\\[ config.\\S+ ]]", configValue));
-      }
+         while (configReader.ready()) {
+            configFile.add(configReader.readLine());
+         }
 
-      if(data.toString().startsWith("---")){
-         String pageMetadatas = data.substring(0, data.indexOf("..."));
-         data = new StringBuilder(data.substring(data.indexOf("...") + 4));;
+         Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
+         Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
 
-         Matcher pageMatcher = pagePattern.matcher(data.toString());
+         Matcher configMatcher = configPattern.matcher(data.toString());
 
-         while (pageMatcher.find()) {
-            String configName = pageMatcher.group().substring(8, pageMatcher.group().length() - 3);
+         while (configMatcher.find()) {
+            String configName = configMatcher.group().substring(10, configMatcher.group().length() - 3);
             String configValue = "";
 
-            if(pageMetadatas.contains(configName)){
-               configValue = pageMetadatas.substring(pageMetadatas.indexOf(configName) + configName.length()+1, pageMetadatas.indexOf('\n', pageMetadatas.indexOf(configName)));
+            for (String line : configFile) {
+               if (line.contains(configName)) {
+                  configValue = line.substring(configName.length() + 1);
+                  break;
+               }
             }
 
-            if(!configValue.isEmpty())
-               data = new StringBuilder(data.toString().replaceFirst("\\[\\[ page.\\S+ ]]", configValue));
+            if (!configValue.isEmpty())
+               data = new StringBuilder(data.toString().replaceFirst("\\[\\[ config.\\S+ ]]", configValue));
          }
+
+         if (data.toString().startsWith("---")) {
+            String pageMetadatas = data.substring(0, data.indexOf("..."));
+            data = new StringBuilder(data.substring(data.indexOf("...") + 4));
+            ;
+
+            Matcher pageMatcher = pagePattern.matcher(data.toString());
+
+            while (pageMatcher.find()) {
+               String configName = pageMatcher.group().substring(8, pageMatcher.group().length() - 3);
+               String configValue = "";
+
+               if (pageMetadatas.contains(configName)) {
+                  configValue = pageMetadatas.substring(pageMetadatas.indexOf(configName) + configName.length() + 1,
+                        pageMetadatas.indexOf('\n', pageMetadatas.indexOf(configName)));
+               }
+
+               if (!configValue.isEmpty())
+                  data = new StringBuilder(data.toString().replaceFirst("\\[\\[ page.\\S+ ]]", configValue));
+            }
+         }
+
+         mdWriter.write(String.valueOf(data));
+      } catch (Exception e) {
+         System.err.println("An error occured while converting to HTML");
+         System.err.println(e.getMessage());
       }
-
-      BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+file));
-
-      mdWriter.write(String.valueOf(data));
-      mdWriter.close();
-
    }
 
    /**
     * Builds the HTML code of a page from a .md
+    * 
     * @param file a .md, relative path from source folder
     * @throws IOException If the file cannot be opened
     */
    private void buildMD(File file) throws IOException {
       // Checking that the given file is a md !
-      if (!file.toString().endsWith("md")) return;
+      if (!file.toString().endsWith("md"))
+         return;
 
       // Absolute path to the file, with given basePath in cmd
-      File absFile = new File(basePath+File.separator+file);
+      File absFile = new File(basePath + File.separator + file);
 
       // Checking that the file isn't a directory !
-      if (absFile.isDirectory() || !absFile.exists()) throw new IllegalArgumentException("'"+absFile+"' isn't a valid file !");
+      if (absFile.isDirectory() || !absFile.exists())
+         throw new IllegalArgumentException("'" + absFile + "' isn't a valid file !");
 
       // Path to HTML file
       File buildFile = new File(basePath + File.separator + "build" + File.separator + file + ".html");
 
       // Checks that the corresponding folder exists in the build folder
       if (!buildFile.getParentFile().exists() && !buildFile.getParentFile().mkdirs()) {
-         throw new RuntimeException("Can't create folder '"+buildFile.getParentFile()+"' !");
+         throw new RuntimeException("Can't create folder '" + buildFile.getParentFile() + "' !");
       }
 
       // Converts MD to HTML
@@ -245,16 +256,14 @@ class Build implements Callable<Integer> {
       data = putContentToLayout(data);
 
       // Dumps the datas to the HTML file
-      try(
-              FileOutputStream fos = new FileOutputStream(buildFile);
-              BufferedOutputStream bos = new BufferedOutputStream(fos)
-      ) {
+      try (
+            FileOutputStream fos = new FileOutputStream(buildFile);
+            BufferedOutputStream bos = new BufferedOutputStream(fos)) {
          byte[] bytes = data.getBytes();
          bos.write(bytes);
       } catch (IOException e) {
          e.printStackTrace();
       }
-
 
    }
 
