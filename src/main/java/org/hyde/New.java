@@ -25,7 +25,7 @@ class New implements Callable<Integer> {
       try {
          File directory = new File("." + site);
          if (!directory.exists() && !directory.mkdirs()) {
-               throw new Exception("Failed to create directory");
+            throw new Exception("Failed to create directory");
          }
 
          File config = new File("." + site + "/config.yaml");
@@ -75,16 +75,27 @@ class New implements Callable<Integer> {
                  "<html lang=\"en\">",
                  "<head>",
                  "   <meta charset=\"utf-8\">",
-                 "   <title>[[ config.site_name ]]  | [[ page.site_name ]] </title>",
                  "</head>",
                  "<body>",
-                 "   [[+ 'menu.html' ]]",
                  "   [[ content ]]",
+                 "   [[+ 'template.html' ]]",
                  "</body>",
                  "</html>"
          );
          Path layoutPath = Path.of(layout.getPath());
          Files.write(layoutPath, layoutContent, StandardCharsets.UTF_8);
+
+         File template = new File("." + site + "/template/template.html");
+         if (!template.exists() && !template.createNewFile()) {
+            throw new Exception("Failed to create layout.html");
+         }
+
+         List<String> templateContent = Arrays.asList(
+                 "<p>Cousin à droite, cousin à gauche</p>",
+                 "<p>Tout le monde fait ca mon pote</p>"
+         );
+         Path templatePath = Path.of(template.getPath());
+         Files.write(templatePath, templateContent, StandardCharsets.UTF_8);
 
       } catch(Exception e) {
          e.printStackTrace();
