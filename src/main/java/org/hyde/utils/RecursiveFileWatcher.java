@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class RecursiveFileWatcher {
@@ -29,7 +30,6 @@ public class RecursiveFileWatcher {
 	 * Register the given directory with the WatchService
 	 */
 	private void register(Path dir) throws IOException {
-		System.out.println("Adding key for " + dir.toString());
 		WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 		keys.put(key, dir);
 	}
@@ -42,23 +42,22 @@ public class RecursiveFileWatcher {
 		// register directory and sub-directories
 		Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
 			@Override
-			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-					throws IOException
-			{
-			register(dir);
-			return FileVisitResult.CONTINUE;
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+				register(dir);
+				return FileVisitResult.CONTINUE;
 			}
 		});
 	}
 
 	private void refreshKeyAndEventBuffer() throws InterruptedException {
+		// Has to be a while, because we sometimes get empty event buffer... What a nice API !
 		while (eventsBuffer == null || eventsBuffer.isEmpty()) {
 			currentKey = watcher.take();
 			eventsBuffer = currentKey.pollEvents();
 		}
 	}
-	public FileEvent fetchEvent() throws InterruptedException {
-		// Has to be a while, because we sometimes get empty event buffer... What a nice API !
+
+	public FileEvent fetchEvent() throws InterruptedException, IOException {
 		if (needsRefresh)
 			refreshKeyAndEventBuffer();
 		
@@ -72,12 +71,15 @@ public class RecursiveFileWatcher {
 		Path name = ev.context();
 		Path child = dir.resolve(name);
 
+		// Register new directories
+		if (kind == ENTRY_CREATE)
+			registerAll(child);
+
 		// Cleanup for next call
 		if (eventsBuffer.isEmpty()) {
-			if (!currentKey.reset()) {
-				System.out.println("Removing key for " + keys.get(currentKey).toString());
+			if (!currentKey.reset())
 				keys.remove(currentKey);
-			}
+
 			needsRefresh = true;
 		}
 
