@@ -1,12 +1,12 @@
 package org.hyde;
 
+import org.hyde.utils.RecursiveFileWatcher;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -25,6 +25,9 @@ class Build implements Callable<Integer> {
 
    @CommandLine.Parameters(index = "0", description = "The path where to build the site.")
    private Path basePath;
+
+   @CommandLine.Option(names = { "--watch" }, description = "If given, rebuild site when updates occur.")
+   private boolean watch;
 
    @Override
    public Integer call() {
@@ -48,6 +51,19 @@ class Build implements Callable<Integer> {
       } catch (IOException e) {
          e.printStackTrace();
          return 1;
+      }
+
+      if (watch) {
+         System.out.println("Entering watch mode...");
+         try {
+            RecursiveFileWatcher watcher = new RecursiveFileWatcher(basePath);
+            RecursiveFileWatcher.FileEvent fileEvent;
+            while ((fileEvent = watcher.fetchEvent()) != null) {
+               System.out.println("Got event " + fileEvent.kind.name() + " for file " + fileEvent.path.toString());
+            }
+         } catch (IOException e) {
+            throw new RuntimeException(e);
+         }
       }
 
       return 0;

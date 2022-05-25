@@ -42,18 +42,23 @@ public class RecursiveFileWatcher {
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
 					throws IOException
 			{
-				register(dir);
-				return FileVisitResult.CONTINUE;
+			register(dir);
+			return FileVisitResult.CONTINUE;
 			}
 		});
 	}
 
-	Pair fetchEvent() throws InterruptedException {
-		if (eventsBuffer == null || eventsBuffer.isEmpty()) {
+	public FileEvent fetchEvent() {
+		// Has to be a while, be cause we sometimes get empty event buffer... Thanks Java !
+		while (eventsBuffer == null || eventsBuffer.isEmpty()) {
 			if (currentKey != null)
 				currentKey.reset();
 
-			currentKey = watcher.take();
+			try {
+				currentKey = watcher.take();
+			} catch (InterruptedException e) {
+				return null;
+			}
 			eventsBuffer = currentKey.pollEvents();
 		}
 		Path dir = keys.get(currentKey);
@@ -66,14 +71,14 @@ public class RecursiveFileWatcher {
 		Path name = ev.context();
 		Path child = dir.resolve(name);
 
-		return new Pair(child, kind);
+		return new FileEvent(child, kind);
 	}
 
-	public static class Pair {
+	public static class FileEvent {
 		public final Path path;
 		public final WatchEvent.Kind<?> kind;
 
-		Pair(Path path, WatchEvent.Kind<?> kind) {
+		FileEvent(Path path, WatchEvent.Kind<?> kind) {
 			this.path = path;
 			this.kind = kind;
 		}
