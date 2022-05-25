@@ -15,11 +15,13 @@ public class RecursiveFileWatcher {
 	private final Map<WatchKey, Path> keys;
 	private List<WatchEvent<?>> eventsBuffer;
 	private WatchKey currentKey;
+	private boolean needsRefresh;
 
 	public RecursiveFileWatcher(Path dir) throws IOException {
 		this.watcher = FileSystems.getDefault().newWatchService();
 		this.keys = new HashMap<WatchKey, Path>();
 		this.eventsBuffer = null;
+		this.needsRefresh = true;
 		registerAll(dir);
 	}
 
@@ -27,6 +29,7 @@ public class RecursiveFileWatcher {
 	 * Register the given directory with the WatchService
 	 */
 	private void register(Path dir) throws IOException {
+		System.out.println("Adding key for " + dir.toString());
 		WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 		keys.put(key, dir);
 	}
@@ -48,19 +51,17 @@ public class RecursiveFileWatcher {
 		});
 	}
 
-	public FileEvent fetchEvent() {
-		// Has to be a while, be cause we sometimes get empty event buffer... Thanks Java !
+	private void refreshKeyAndEventBuffer() throws InterruptedException {
 		while (eventsBuffer == null || eventsBuffer.isEmpty()) {
-			if (currentKey != null)
-				currentKey.reset();
-
-			try {
-				currentKey = watcher.take();
-			} catch (InterruptedException e) {
-				return null;
-			}
+			currentKey = watcher.take();
 			eventsBuffer = currentKey.pollEvents();
 		}
+	}
+	public FileEvent fetchEvent() throws InterruptedException {
+		// Has to be a while, because we sometimes get empty event buffer... What a nice API !
+		if (needsRefresh)
+			refreshKeyAndEventBuffer();
+		
 		Path dir = keys.get(currentKey);
 		WatchEvent<?> event = eventsBuffer.get(0);
 		eventsBuffer.remove(0);
@@ -70,6 +71,15 @@ public class RecursiveFileWatcher {
 		WatchEvent<Path> ev = (WatchEvent<Path>) event;
 		Path name = ev.context();
 		Path child = dir.resolve(name);
+
+		// Cleanup for next call
+		if (eventsBuffer.isEmpty()) {
+			if (!currentKey.reset()) {
+				System.out.println("Removing key for " + keys.get(currentKey).toString());
+				keys.remove(currentKey);
+			}
+			needsRefresh = true;
+		}
 
 		return new FileEvent(child, kind);
 	}

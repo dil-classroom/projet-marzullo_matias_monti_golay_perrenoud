@@ -61,7 +61,7 @@ class Build implements Callable<Integer> {
             while ((fileEvent = watcher.fetchEvent()) != null) {
                System.out.println("Got event " + fileEvent.kind.name() + " for file " + fileEvent.path.toString());
             }
-         } catch (IOException e) {
+         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
          }
       }
