@@ -19,8 +19,8 @@ import org.commonmark.renderer.html.HtmlRenderer;
 class Build implements Callable<Integer> {
    public static final List<String> excluded = List.of("config.yaml", "build");
 
-   @CommandLine.Parameters(index = "0", description = "The path where to build the site.")
-   private Path basePath;
+   @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The path where to build the site.")
+   private Path basePath = Path.of(".");
 
    @Override
    public Integer call() {

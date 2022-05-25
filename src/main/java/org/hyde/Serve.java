@@ -11,8 +11,8 @@ import picocli.CommandLine.Command;
 
 class Serve implements Callable<Integer> {
 
-   @CommandLine.Parameters(paramLabel = "SITE", description = "The site to build")
-   public String site;
+   @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The site to build")
+   public String site = ".";
 
    @Override
    public Integer call() {
