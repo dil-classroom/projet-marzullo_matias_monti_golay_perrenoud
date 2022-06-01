@@ -237,6 +237,7 @@ class Build implements Callable<Integer> {
       } catch (Exception e) {
          System.err.println("An error occured while converting to HTML");
          System.err.println(e.getMessage());
+         throw e;
       }
    }
 
