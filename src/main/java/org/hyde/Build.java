@@ -5,6 +5,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -17,6 +18,8 @@ import java.util.regex.Pattern;
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Command(name = "build")
 
@@ -68,8 +71,7 @@ class Build implements Callable<Integer> {
    }
 
    private void build(File file) throws IOException {
-      if (excluded.contains(file.getName()))
-         return;
+      if (excluded.contains(file.getName())) return;
 
       var absPath = new File(basePath + File.separator + file);
 
@@ -78,6 +80,9 @@ class Build implements Callable<Integer> {
             metadataTemplating(file);
             File builtFile = buildMD(file);
             checkFileInclusion(builtFile.toString());
+         } else {
+            File buildFile = new File(basePath + File.separator + "build" + File.separator + file);
+            Files.copy(file.toPath(), buildFile.toPath(), REPLACE_EXISTING);
          }
       } else {
          // Liste le contenu du dossier
