@@ -48,7 +48,7 @@ class Build implements Callable<Integer> {
 
       // Starts the recursive building of the folder
       try {
-         build(new File("")); // TODO : replace with null
+         build(null);
       } catch (IOException e) {
          e.printStackTrace();
          return 1;
@@ -71,9 +71,14 @@ class Build implements Callable<Integer> {
    }
 
    private void build(File file) throws IOException {
-      if (excluded.contains(file.getName())) return;
-
-      var absPath = new File(basePath + File.separator + file);
+      File absPath;
+      if (file != null) {
+         if (excluded.contains(file.getName())) return;
+         absPath = new File(basePath + File.separator + file);
+      } else {
+         absPath = basePath.toFile();
+         file = basePath.toFile();
+      }
 
       if (absPath.isFile()) {
          if (file.toString().endsWith(".md")) {
@@ -82,6 +87,9 @@ class Build implements Callable<Integer> {
             checkFileInclusion(builtFile.toString());
          } else {
             File buildFile = new File(basePath + File.separator + "build" + File.separator + file);
+            if (!buildFile.getParentFile().exists() && !buildFile.getParentFile().mkdirs()) {
+               throw new RuntimeException("Impossible de créer les dossiers parents pour le contenu static.");
+            }
             Files.copy(file.toPath(), buildFile.toPath(), REPLACE_EXISTING);
          }
       } else {
@@ -100,7 +108,7 @@ class Build implements Callable<Integer> {
    private void checkFileInclusion(String file) throws IOException {
       if (!file.endsWith(".html")) return;
 
-      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+"build"+File.separator+file));
+      BufferedReader mdReader = new BufferedReader(new FileReader(file));
      
       StringBuilder data = new StringBuilder();
 
