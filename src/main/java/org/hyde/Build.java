@@ -24,7 +24,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @Command(name = "build")
 
 class Build implements Callable<Integer> {
-   public static final List<String> excluded = List.of("config.yaml", "build");
+   public static final List<String> excluded = List.of("config.yaml", "build", "template");
 
    @CommandLine.Parameters(index = "0", description = "The path where to build the site.")
    private Path basePath; // Path vers le dossier racine où build
@@ -128,7 +128,7 @@ class Build implements Callable<Integer> {
 
          BufferedReader fileInclusionReader = new BufferedReader(new FileReader(basePath+File.separator+"template"+File.separator+fileName));
          System.out.println(basePath+File.separator+"template"+File.separator+fileName);
-         BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+"build"+File.separator+file));
+         BufferedWriter mdWriter = new BufferedWriter(new FileWriter(file));
          StringBuilder fileInclusionData = new StringBuilder();
 
          while(fileInclusionReader.ready()){
