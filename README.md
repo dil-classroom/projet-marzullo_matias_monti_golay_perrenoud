@@ -20,7 +20,7 @@ Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est u
 Le paramètre ```--watch``` indique au programme d'exécuter automatiquement cette commande lorsque une modifications est effectuée dans les fichiers sources du site.
 
 ### hyde serve \<path> \<--watch>
-Permet de visualiser le site défini par les fichiers se trouvant dans le sous-dossier ```<path>/build```, ceux-ci étant générés par la commande ````build```.
+Permet de visualiser le site défini par les fichiers se trouvant dans le sous-dossier ```<path>/build```, ceux-ci étant générés par la commande ```build```.
 Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est utilisé.
 Le paramètre ```--watch``` indique au programme d'exécuter automatiquement cette commande lorsque une modifications est effectuée dans les fichiers sources du site.
 
