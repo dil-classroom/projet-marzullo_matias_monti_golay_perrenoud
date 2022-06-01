@@ -20,6 +20,7 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 @Command(name = "build")
 
@@ -61,6 +62,21 @@ class Build implements Callable<Integer> {
             RecursiveFileWatcher.FileEvent fileEvent;
             while ((fileEvent = watcher.fetchEvent()) != null) {
                System.out.println("Got event " + fileEvent.kind.name() + " for file " + fileEvent.path.toString());
+
+               // Update in the build directory are ignored
+               if (fileEvent.path.startsWith("build" + File.separator))
+                  continue;
+
+               // Rebuild entire tree when updating config files
+               else if (fileEvent.path.endsWith("config.yaml") || fileEvent.path.endsWith("layout.html"))
+                  build(new File("."));
+
+               else if (ENTRY_CREATE.equals(fileEvent.kind) || ENTRY_MODIFY.equals(fileEvent.kind))
+                  build(fileEvent.path.toFile());
+
+               else if (ENTRY_DELETE.equals(fileEvent.kind)) {
+                  // TODO: delete old files
+               }
             }
          } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -296,10 +312,5 @@ class Build implements Callable<Integer> {
       }
 
       return buildFile;
-   }
-
-   public static void main(String... args) {
-      int exitCode = new CommandLine(new Build()).execute(args);
-      System.exit(exitCode);
    }
 }
