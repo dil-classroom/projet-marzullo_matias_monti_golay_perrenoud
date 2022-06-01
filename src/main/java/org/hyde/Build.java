@@ -74,10 +74,11 @@ class Build implements Callable<Integer> {
       var absPath = new File(basePath + File.separator + file);
 
       if (absPath.isFile()) {
-         metadataTemplating(file);
-         buildMD(file);
-         if (file.toString().endsWith(".md"))
-            checkFileInclusion(file + ".html");
+         if (file.toString().endsWith(".md")) {
+            metadataTemplating(file);
+            File builtFile = buildMD(file);
+            checkFileInclusion(builtFile.toString());
+         }
       } else {
          // Liste le contenu du dossier
          for (String subfile : Objects.requireNonNull(absPath.list())) {
@@ -240,10 +241,10 @@ class Build implements Callable<Integer> {
     * @param file a .md, relative path from source folder
     * @throws IOException If the file cannot be opened
     */
-   private void buildMD(File file) throws IOException {
+   private File buildMD(File file) throws IOException {
       // Checking that the given file is a md !
       if (!file.toString().endsWith("md"))
-         return;
+         throw new IllegalArgumentException("buildMD called on another file than a MD");
 
       // Absolute path to the file, with given basePath in cmd
       File absFile = new File(basePath + File.separator + file);
@@ -253,7 +254,8 @@ class Build implements Callable<Integer> {
          throw new IllegalArgumentException("'" + absFile + "' isn't a valid file !");
 
       // Path to HTML file
-      File buildFile = new File(basePath + File.separator + "build" + File.separator + file + ".html");
+      String htmlFilename = file.toString().substring(0, file.toString().length() - 3) + "html";
+      File buildFile = new File(basePath + File.separator + "build" + File.separator + htmlFilename);
 
       // Checks that the corresponding folder exists in the build folder
       if (!buildFile.getParentFile().exists() && !buildFile.getParentFile().mkdirs()) {
@@ -272,13 +274,14 @@ class Build implements Callable<Integer> {
       // Dumps the datas to the HTML file
       try (
             FileOutputStream fos = new FileOutputStream(buildFile);
-            BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-         byte[] bytes = data.getBytes();
-         bos.write(bytes);
+            BufferedOutputStream bos = new BufferedOutputStream(fos)
+      ) {
+         bos.write(data.getBytes());
       } catch (IOException e) {
          e.printStackTrace();
       }
 
+      return buildFile;
    }
 
    public static void main(String... args) {
