@@ -260,7 +260,7 @@ class Build implements Callable<Integer> {
          throw new IllegalArgumentException("'" + absFile + "' isn't a valid file !");
 
       // Path to HTML file
-      String htmlFilename = file.toString().substring(0, file.toString().length() - 3) + "html";
+      String htmlFilename = file.toString().substring(0, file.toString().length() - 2) + "html";
       File buildFile = new File(basePath + File.separator + "build" + File.separator + htmlFilename);
 
       // Checks that the corresponding folder exists in the build folder
