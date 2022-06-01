@@ -20,4 +20,4 @@ Add a list of optional tasks
 - Optimistic: 
 - Pessimistic:
 
-**Effective time taken: **
+**Effective time taken:**
