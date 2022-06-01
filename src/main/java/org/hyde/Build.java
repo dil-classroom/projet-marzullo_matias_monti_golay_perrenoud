@@ -24,30 +24,28 @@ class Build implements Callable<Integer> {
    public static final List<String> excluded = List.of("config.yaml", "build");
 
    @CommandLine.Parameters(index = "0", description = "The path where to build the site.")
-   private Path basePath;
+   private Path basePath; // Path vers le dossier racine où build
 
    @CommandLine.Option(names = { "--watch" }, description = "If given, rebuild site when updates occur.")
    private boolean watch;
 
    @Override
    public Integer call() {
-      File baseFile = new File(String.valueOf(basePath));
-      if (!(baseFile.isDirectory()) || !baseFile.exists())
-         return 1;
-      File buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
+      // Check that the given path is an existing directory
+      File baseFile = basePath.toFile();
+      if (!baseFile.isDirectory() || !baseFile.exists()) return 1;
 
-      // Checks or creates that the build folder exists
+      // Check that the build folder exists or try to create it
+      File buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
       if (!buildFile.exists()) {
-         if (!buildFile.mkdir())
-            return 1;
+         if (!buildFile.mkdir()) return 1;
       } else {
-         if (!buildFile.isDirectory())
-            return 1;
+         if (!buildFile.isDirectory()) return 1;
       }
 
       // Starts the recursive building of the folder
       try {
-         build(new File(""));
+         build(new File("")); // TODO : replace with null
       } catch (IOException e) {
          e.printStackTrace();
          return 1;
