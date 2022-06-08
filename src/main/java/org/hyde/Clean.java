@@ -4,7 +4,9 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
+import org.apache.commons.io.FileUtils;
 
 @Command(name = "clean")
 
@@ -19,23 +21,13 @@ class Clean implements Callable<Integer> {
 
       File path = new File(site + "/build");
       if (path.exists()) {
-         deleteDirectory(path);
+         try {
+            FileUtils.deleteDirectory(path);
+         } catch (IOException e) {
+            System.err.println("Cannot delete directory " + path.getAbsolutePath());
+         }
       }
 
       return 0;
-   }
-
-   private boolean deleteDirectory(File path) {
-      if (path.exists()) {
-         File[] files = path.listFiles();
-         for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-               deleteDirectory(files[i]);
-            } else {
-               files[i].delete();
-            }
-         }
-      }
-      return (path.delete());
    }
 }
