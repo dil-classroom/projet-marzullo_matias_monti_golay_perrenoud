@@ -11,9 +11,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+
+/**
+ * Crée un nouveau squelette de site avec du contenu par défaut.
+ */
 @Command(name = "new")
 class New implements Callable<Integer> {
 
+   /**
+    * Le chemin relatif vers le site à nettoyer. Par défaut, il s'agit du dossier courant.
+    */
    @Parameters(arity = "0..1", paramLabel = "SITE", description = "The site to build")
    public String site = ".";
 
@@ -30,6 +37,13 @@ class New implements Callable<Integer> {
          File directory = new File(site);
          if (!directory.exists() && !directory.mkdirs()) {
             System.err.println("Failed to create site directory.");
+            return -1;
+         }
+
+         // Crée le dossier de templates
+         File templateDirectory = new File(site + "/template");
+         if (!templateDirectory.exists() && !templateDirectory.mkdirs()) {
+            System.err.println("Failed to create /template directory.");
             return -1;
          }
 
@@ -72,12 +86,7 @@ class New implements Callable<Integer> {
          Path indexPath = Path.of(index.getPath());
          Files.write(indexPath, defaultIndexContent, StandardCharsets.UTF_8);
 
-         File templateDirectory = new File(site + "/template");
-         if (!templateDirectory.exists() && !templateDirectory.mkdirs()) {
-            System.err.println("Failed to create /template directory.");
-            return -1;
-         }
-
+         // Crée un fichier de layout exemple
          File layout = new File(site + "/template/layout.html");
          if (!layout.exists() && !layout.createNewFile()) {
             System.err.println("Failed to create layout.html.");
@@ -98,6 +107,7 @@ class New implements Callable<Integer> {
          Path layoutPath = Path.of(layout.getPath());
          Files.write(layoutPath, layoutContent, StandardCharsets.UTF_8);
 
+         // Crée un fichier de template exemple
          File template = new File(site + "/template/template.html");
          if (!template.exists() && !template.createNewFile()) {
             System.err.println("Failed to create template.html.");
