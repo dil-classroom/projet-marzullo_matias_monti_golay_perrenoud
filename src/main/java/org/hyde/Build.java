@@ -140,38 +140,90 @@ class Build implements Callable<Integer> {
       try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
          String line;
          while((line = reader.readLine()) != null) {
-            // Si la ligne est vide, ignore
-            if (line.isEmpty()) continue;
+            // Transforme la ligne en clé:valeur
+            var key_value = lineToConfig(line);
 
-            // Ignore les commentaires
-            if (line.startsWith("#")) continue;
-
-            // Assure que la ligne contient un :
-            if (!line.contains(":")) {
-               System.err.println("Invalid line in config : '"+line+"'");
-               continue;
-            }
-
-            // Split la ligne par le ":" pour séparer clé et valeur
-            String[] key_value = line.split(":", 2);
-
-            // Retire un éventuel espace de fin sur la clé
-            if (key_value[0].endsWith(" ")) key_value[0] = key_value[0].substring(0, key_value[0].length()-2);
-
-            // Retire un éventuel espace de départ sur la valeur
-            if (key_value[1].startsWith(" ")) key_value[1] = key_value[1].substring(1);
+            // Si la ligne ne contient pas de headers, continue
+            if (key_value == null) continue;
 
             // Ajoute la valeur à la configuration chargée
             config.put(key_value[0], key_value[1]);
          }
-      } catch(IOException e) {
-         System.err.println("Can't read config file !");
-         throw e;
       }
 
       return config;
    }
 
+   private String[] lineToConfig(String line) {
+      // Si la ligne est vide, ignore
+      if (line.isEmpty()) return null;
+
+      // Ignore les commentaires
+      if (line.startsWith("#")) return null;
+
+      // Assure que la ligne contient un :
+      if (!line.contains(":")) {
+         System.err.println("Invalid line in config : '"+line+"'");
+         return null;
+      }
+
+      // Split la ligne par le ":" pour séparer clé et valeur
+      String[] key_value = line.split(":", 2);
+
+      // Retire un éventuel espace de fin sur la clé
+      if (key_value[0].endsWith(" ")) key_value[0] = key_value[0].substring(0, key_value[0].length()-2);
+
+      // Retire un éventuel espace de départ sur la valeur
+      if (key_value[1].startsWith(" ")) key_value[1] = key_value[1].substring(1);
+
+      // Retourne la clé et la valeur
+      return key_value;
+   }
+
+   private void buildMD(File file) throws IOException {
+      // Récupère la configuration globale du projet
+      var config = getConfig();
+
+      // Récupère la configuration locale du fichier
+      var localConfig = getLocalConfig(file);
+
+      // TODO : Retirer les headers de configuration
+      // TODO : Transformer en HTML
+      // TODO : Si template.html existe, merge le fichier dans content dans template.html
+      // TODO : Envoyer le contenu dans le fichier de build
+      // TODO : Appeler les inclusions de fichier sur le fichier dans build
+      // TODO : Appeler les remplacements de variables sur le fichier dans build
+   }
+
+   private HashMap<String, String> getLocalConfig(File file) throws IOException {
+      var config = new HashMap<String, String>();
+
+      try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+         // Si le fichier ne commence pas par le séparateur, il n'y a pas de config
+         if (!reader.readLine().equals("---")) return config;
+
+         // Tant qu'il y a des lignes à lire
+         String line;
+         while((line = reader.readLine()) != null) {
+            if (line.equals("...")) {
+               return config;
+            }
+
+            // Transforme la ligne en clé:valeur
+            var key_value = lineToConfig(line);
+
+            // Si la ligne ne contient pas de headers, continue
+            if (key_value == null) continue;
+
+            // Ajoute la valeur à la configuration chargée
+            config.put(key_value[0], key_value[1]);
+         }
+      }
+
+      throw new RuntimeException("Unterminated headers in '" + file + "'.");
+   }
+
+   // TODO : End of new code
    /**
     * Check for file inclusions and charges them
     * @param file path to the HTML file
@@ -320,12 +372,13 @@ class Build implements Callable<Integer> {
       }
    }
 
+   /*
    /**
     * Builds the HTML code of a page from a .md
     * 
     * @param file a .md, relative path from source folder
     * @throws IOException If the file cannot be opened
-    */
+    * /
    private void buildMD(File file) throws IOException {
       // Checking that the given file is a md !
       if (!file.toString().endsWith("md"))
@@ -365,5 +418,5 @@ class Build implements Callable<Integer> {
          e.printStackTrace();
       }
 
-   }
+   }*/
 }
