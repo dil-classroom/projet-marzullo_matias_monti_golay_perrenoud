@@ -20,28 +20,48 @@ import org.commonmark.renderer.html.HtmlRenderer;
 @Command(name = "build")
 
 class Build implements Callable<Integer> {
-   public static final List<String> excluded = List.of("config.yaml", "build");
+   public static final List<String> excludedFiles = List.of("config.yaml"); // TODO : Ajouter fichier squelette et autre ?
+   public static final List<String> excludedFolders = List.of("build"); // TODO : Ajouter le dossier de templates et layout et include
 
    @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The path where to build the site.")
-   private Path basePath = Path.of(".");
+   private final Path basePath = Path.of("."); // Le "." sert de valeur par défaut
 
+   /**
+    * Fonction "main" appelée par le terminal
+    * @return 1 en cas d'erreur, 0 si tout s'est bien passé
+    */
    @Override
    public Integer call() {
       File baseFile = new File(String.valueOf(basePath));
-      if (!(baseFile.isDirectory()) || !baseFile.exists())
-         return 1;
-      File buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
 
-      // Checks or creates that the build folder exists
-      if (!buildFile.exists()) {
-         if (!buildFile.mkdir())
-            return 1;
-      } else {
-         if (!buildFile.isDirectory())
-            return 1;
+      // Vérifie que le chemin donné pointe sur une ressource existante
+      if (!baseFile.exists()) {
+         System.err.println("Given path doesn't point to an existing folder. Please create folder with \"new\" command.");
+         return 1;
       }
 
-      // Starts the recursive building of the folder
+      // Vérifie que le chemin donné pointe vers un dossier
+      if (!(baseFile.isDirectory())) {
+         System.err.println("Given path is not a folder.");
+         return 1;
+      }
+
+      File baseBuild = new File(baseFile.getAbsolutePath() + File.separator + "build");
+
+      // Vérifie que le chemin de build pointe vers un dossier existant ou créable
+      if (!baseBuild.exists()) {
+         if (!baseBuild.mkdir()) {
+            System.err.println("Can't create build folder");
+            return 1;
+         }
+      } else {
+         if (!baseBuild.isDirectory()) {
+            System.err.println("Build path is not a folder !");
+            return 1;
+         }
+      }
+
+      // Génère le site de manière récursive
       try {
          build(new File(""));
       } catch (IOException e) {
@@ -52,8 +72,13 @@ class Build implements Callable<Integer> {
       return 0;
    }
 
+   /**
+    * Génère le site récursivement à partir d'un fichier ou dossier
+    * @param file Chemin à traiter. Relatif à basePath (donné dans la ligne de commande)
+    * @throws IOException S'l est impossible d'ouvrir un fichier (fichier à générer, configuration, template) ou de créer le dossier de destination
+    */
    private void build(File file) throws IOException {
-      if (excluded.contains(file.getName()))
+      if (excludedFiles.contains(file.getName()))
          return;
 
       var absPath = new File(basePath + File.separator + file);
