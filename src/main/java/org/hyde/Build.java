@@ -154,6 +154,11 @@ class Build implements Callable<Integer> {
       return config;
    }
 
+   /**
+    * Traite une ligne de texte qui devrait contenir une clé:valeur
+    * @param line Ligne à traiter
+    * @return clé:valeur ou null la ligne est invalide ou à ignorer
+    */
    private String[] lineToConfig(String line) {
       // Si la ligne est vide, ignore
       if (line.isEmpty()) return null;
@@ -180,21 +185,86 @@ class Build implements Callable<Integer> {
       return key_value;
    }
 
+   /**
+    * Génère la page HTML à partir d'un MD avec le fichier de template
+    * @param file chemin relatif à build
+    * @throws IOException En cas d'erreur avec la lecture ou la création d'un fichier
+    */
    private void buildMD(File file) throws IOException {
       // Récupère la configuration globale du projet
-      var config = getConfig();
+      var globalConfig = getConfig();
 
       // Récupère la configuration locale du fichier
-      var localConfig = getLocalConfig(file);
+      var localConfig = getLocalConfig(new File(basePath + File.separator + file));
 
-      // TODO : Retirer les headers de configuration
-      // TODO : Transformer en HTML
-      // TODO : Si template.html existe, merge le fichier dans content dans template.html
-      // TODO : Envoyer le contenu dans le fichier de build
+      // Lecture et traitement du md
+      String data;
+      try (BufferedReader reader = new BufferedReader(new FileReader(basePath + File.separator + file))) {
+         StringBuilder content = new StringBuilder();
+
+         // Lit le md dans un String en retirant les headers de configuration
+         boolean configEndFound = localConfig.isEmpty();
+         String line;
+         while ((line = reader.readLine()) != null) {
+            if (!configEndFound && line.equals("...")) {
+               configEndFound = true;
+               continue;
+            }
+            content.append(line).append(System.getProperty("line.separator"));
+         }
+
+         // Transforme le contenu du MD en HTML
+         Parser parser = Parser.builder().build();
+         Node document = parser.parse(content.toString());
+         HtmlRenderer renderer = HtmlRenderer.builder().build();
+         data = renderer.render(document);
+      }
+
+      // Si template.html existe, lit le fichier et insère le contenu
+      File templateFile = new File(basePath + File.separator + "template" + File.separator + "template.html");
+      if (templateFile.exists()) {
+         StringBuilder sb = new StringBuilder();
+         boolean gotContent = false;
+
+         // Lit le fichier de template et insère le contenu à sa place
+         try (BufferedReader reader = new BufferedReader(new FileReader(templateFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+               if (line.contains("[[ content ]]")) {
+                  line = line.replace("[[ content ]]", data);
+                  gotContent = true;
+               }
+
+               sb.append(line).append(System.getProperty("line.separator"));
+            }
+         }
+
+         if (!gotContent) {
+            throw new RuntimeException("Template file doesn't contain a \"[[ content ]] tag.\" ");
+         }
+
+         data = sb.toString();
+      }
+
+      // Écrit les données dans le fichier de build
+      try (BufferedWriter write = new BufferedWriter(
+              new FileWriter(
+                      basePath + File.separator + "build" + File.separator + file
+              )
+      )) {
+         write.write(data);
+      }
+
       // TODO : Appeler les inclusions de fichier sur le fichier dans build
       // TODO : Appeler les remplacements de variables sur le fichier dans build
    }
 
+   /**
+    * Lit les headers de configuration d'un fichier .md
+    * @param file doit être un chemin ABSOLU vers le fichier
+    * @return La configuration parsée
+    * @throws IOException En cas d'erreur avec le fichier
+    */
    private HashMap<String, String> getLocalConfig(File file) throws IOException {
       var config = new HashMap<String, String>();
 
@@ -220,7 +290,7 @@ class Build implements Callable<Integer> {
          }
       }
 
-      throw new RuntimeException("Unterminated headers in '" + file + "'.");
+      throw new RuntimeException("Unterminated headers in md file '" + file + "'.");
    }
 
    // TODO : End of new code
