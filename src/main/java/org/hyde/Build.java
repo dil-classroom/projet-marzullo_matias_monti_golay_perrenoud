@@ -6,7 +6,6 @@ import picocli.CommandLine.Command;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -265,10 +264,5 @@ class Build implements Callable<Integer> {
          e.printStackTrace();
       }
 
-   }
-
-   public static void main(String... args) {
-      int exitCode = new CommandLine(new Build()).execute(args);
-      System.exit(exitCode);
    }
 }
