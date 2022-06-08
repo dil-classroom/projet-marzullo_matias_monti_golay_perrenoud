@@ -66,6 +66,7 @@ class Build implements Callable<Integer> {
       try {
          build(new File(""));
       } catch (IOException e) {
+         System.err.println("An error happened during the generation of the content");
          e.printStackTrace();
          return 1;
       }
