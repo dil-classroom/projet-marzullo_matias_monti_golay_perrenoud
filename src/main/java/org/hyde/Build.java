@@ -6,11 +6,9 @@ import picocli.CommandLine.Command;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Callable;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,6 +120,56 @@ class Build implements Callable<Integer> {
             );
          }
       }
+   }
+
+   /**
+    * Charge la configuration globale
+    * @return retourne la configuration chargée
+    * @throws IOException Si le fichier de configuration n'est pas lisible
+    */
+   private HashMap<String, String> getConfig() throws IOException {
+      var config = new HashMap<String, String>();
+
+      // Ouvre le fichier config.yaml et vérifie qu'il existe
+      File configFile = new File(basePath + File.separator + "config.yaml");
+      if (!configFile.exists()) {
+         return config;
+      }
+
+      // Lis le fichier ligne par ligne
+      try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+         String line;
+         while((line = reader.readLine()) != null) {
+            // Si la ligne est vide, ignore
+            if (line.isEmpty()) continue;
+
+            // Ignore les commentaires
+            if (line.startsWith("#")) continue;
+
+            // Assure que la ligne contient un :
+            if (!line.contains(":")) {
+               System.err.println("Invalid line in config : '"+line+"'");
+               continue;
+            }
+
+            // Split la ligne par le ":" pour séparer clé et valeur
+            String[] key_value = line.split(":", 2);
+
+            // Retire un éventuel espace de fin sur la clé
+            if (key_value[0].endsWith(" ")) key_value[0] = key_value[0].substring(0, key_value[0].length()-2);
+
+            // Retire un éventuel espace de départ sur la valeur
+            if (key_value[1].startsWith(" ")) key_value[1] = key_value[1].substring(1);
+
+            // Ajoute la valeur à la configuration chargée
+            config.put(key_value[0], key_value[1]);
+         }
+      } catch(IOException e) {
+         System.err.println("Can't read config file !");
+         throw e;
+      }
+
+      return config;
    }
 
    /**
