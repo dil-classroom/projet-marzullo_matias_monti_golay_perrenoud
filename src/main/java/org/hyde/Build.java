@@ -19,8 +19,8 @@ import org.commonmark.renderer.html.HtmlRenderer;
 @Command(name = "build")
 
 class Build implements Callable<Integer> {
-   public static final List<String> excludedFiles = List.of("config.yaml"); // TODO : Ajouter fichier squelette et autre ?
-   public static final List<String> excludedFolders = List.of("build"); // TODO : Ajouter le dossier de templates et layout et include
+   public static final List<String> excludedFiles = List.of("config.yaml");
+   public static final List<String> excludedFolders = List.of("build", "template");
 
    @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The path where to build the site.")
    private final Path basePath = Path.of("."); // Le "." sert de valeur par défaut
