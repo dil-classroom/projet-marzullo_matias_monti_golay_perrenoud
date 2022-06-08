@@ -33,7 +33,7 @@ class Build implements Callable<Integer> {
     */
    @Override
    public Integer call() {
-      File baseFile = new File(String.valueOf(basePath)); // TODO : Use toFile
+      File baseFile = basePath.toFile();
 
       // Vérifie que le chemin donné pointe sur une ressource existante
       if (!baseFile.exists()) {
