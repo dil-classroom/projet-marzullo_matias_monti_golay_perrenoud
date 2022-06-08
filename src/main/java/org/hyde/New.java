@@ -17,26 +17,32 @@ class New implements Callable<Integer> {
    @Parameters(arity = "0..1", paramLabel = "SITE", description = "The site to build")
    public String site = ".";
 
+   /**
+    * Méthode appelée automatiquement lors de l'invocation de "hyde new".
+    * @return 0 si tout s'est bien passé.
+    */
    @Override
    public Integer call() {
-      System.out.println("new " + site);
+      System.out.format("Creating new site... ");
 
       try {
          // Crée le(s) dossier(s) nécessaire(s) si le répertoire choisi n'existe pas
          File directory = new File(site);
          if (!directory.exists() && !directory.mkdirs()) {
-            throw new Exception("Failed to create directory");
+            System.err.println("Failed to create site directory.");
+            return -1;
          }
 
          // Crée le fichier de configuration
          File config = new File(site + "/config.yaml");
          if (!config.exists() && !config.createNewFile()) {
-            throw new Exception("Failed to create config.yaml");
+            System.err.println("Failed to create config file.");
+            return -1;
          }
 
          // Insère du contenu par défaut dans ce fichier
          List<String> defaultConfigContent = Arrays.asList(
-                 "titre: Mon premier site", "creator: Gabe Newell"
+                 "titre: Mon premier site", "creator: John Doe"
          );
          Path configPath = Path.of(config.getPath());
          Files.write(configPath, defaultConfigContent, StandardCharsets.UTF_8);
@@ -44,7 +50,8 @@ class New implements Callable<Integer> {
          // Crée un fichier de contenu
          File index = new File(site + "/index.md");
          if (!index.exists() && !index.createNewFile()) {
-            throw new Exception("Failed to create index.md");
+            System.err.println("Failed to create index.md.");
+            return -1;
          }
 
          // Insère du contenu par défaut dans ce fichier
@@ -65,14 +72,16 @@ class New implements Callable<Integer> {
          Path indexPath = Path.of(index.getPath());
          Files.write(indexPath, defaultIndexContent, StandardCharsets.UTF_8);
 
-         File templateDirectory = new File("." + site + "/template");
+         File templateDirectory = new File(site + "/template");
          if (!templateDirectory.exists() && !templateDirectory.mkdirs()) {
-            throw new Exception("Failed to create directory template");
+            System.err.println("Failed to create /template directory.");
+            return -1;
          }
 
-         File layout = new File("." + site + "/template/layout.html");
+         File layout = new File(site + "/template/layout.html");
          if (!layout.exists() && !layout.createNewFile()) {
-            throw new Exception("Failed to create layout.html");
+            System.err.println("Failed to create layout.html.");
+            return -1;
          }
 
          List<String> layoutContent = Arrays.asList(
@@ -89,9 +98,10 @@ class New implements Callable<Integer> {
          Path layoutPath = Path.of(layout.getPath());
          Files.write(layoutPath, layoutContent, StandardCharsets.UTF_8);
 
-         File template = new File("." + site + "/template/template.html");
+         File template = new File(site + "/template/template.html");
          if (!template.exists() && !template.createNewFile()) {
-            throw new Exception("Failed to create layout.html");
+            System.err.println("Failed to create template.html.");
+            return -1;
          }
 
          List<String> templateContent = Arrays.asList(
@@ -102,9 +112,12 @@ class New implements Callable<Integer> {
          Files.write(templatePath, templateContent, StandardCharsets.UTF_8);
 
       } catch(Exception e) {
+         System.out.println("\nAn error occured during site creation.");
          e.printStackTrace();
+         return -1;
       }
 
+      System.out.println("Done.");
       return 0;
    }
 }
