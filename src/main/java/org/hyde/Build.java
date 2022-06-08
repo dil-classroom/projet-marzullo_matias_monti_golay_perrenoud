@@ -198,7 +198,7 @@ class Build implements Callable<Integer> {
       var localConfig = getLocalConfig(new File(basePath + File.separator + file));
 
       // Lecture et traitement du md
-      String data;
+      String HTML_content;
       try (BufferedReader reader = new BufferedReader(new FileReader(basePath + File.separator + file))) {
          StringBuilder content = new StringBuilder();
 
@@ -217,7 +217,7 @@ class Build implements Callable<Integer> {
          Parser parser = Parser.builder().build();
          Node document = parser.parse(content.toString());
          HtmlRenderer renderer = HtmlRenderer.builder().build();
-         data = renderer.render(document);
+         HTML_content = renderer.render(document);
       }
 
       // Si template.html existe, lit le fichier et insère le contenu
@@ -226,12 +226,15 @@ class Build implements Callable<Integer> {
          StringBuilder sb = new StringBuilder();
          boolean gotContent = false;
 
-         // Lit le fichier de template et insère le contenu à sa place
-         try (BufferedReader reader = new BufferedReader(new FileReader(templateFile))) {
+         // Lit le fichier de template
+         // Insère le contenu à sa place
+         try (
+                 BufferedReader reader = new BufferedReader(new FileReader(templateFile))
+         ) {
             String line;
             while ((line = reader.readLine()) != null) {
                if (line.contains("[[ content ]]")) {
-                  line = line.replace("[[ content ]]", data);
+                  line = line.replace("[[ content ]]", HTML_content);
                   gotContent = true;
                }
 
@@ -239,24 +242,23 @@ class Build implements Callable<Integer> {
             }
          }
 
+         // Si le fichier template
          if (!gotContent) {
             throw new RuntimeException("Template file doesn't contain a \"[[ content ]] tag.\" ");
          }
 
-         data = sb.toString();
+         HTML_content = sb.toString();
       }
 
-      // Écrit les données dans le fichier de build
-      try (BufferedWriter write = new BufferedWriter(
-              new FileWriter(
-                      basePath + File.separator + "build" + File.separator + file
-              )
-      )) {
-         write.write(data);
-      }
+      // TODO : Ici, HTML_content contient le HTML à traiter et écrire
+      // TODO : Remplacement de variable
+      // TODO : File inclusion
 
-      // TODO : Appeler les inclusions de fichier sur le fichier dans build
-      // TODO : Appeler les remplacements de variables sur le fichier dans build
+      // Écrit le contenu généré dans le fichier de destination
+      File outputAbsFile = new File(basePath + File.separator + "build" + File.separator + file);
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputAbsFile))) {
+         writer.write(HTML_content);
+      }
    }
 
    /**
@@ -441,52 +443,4 @@ class Build implements Callable<Integer> {
          System.err.println(e.getMessage());
       }
    }
-
-   /*
-   /**
-    * Builds the HTML code of a page from a .md
-    * 
-    * @param file a .md, relative path from source folder
-    * @throws IOException If the file cannot be opened
-    * /
-   private void buildMD(File file) throws IOException {
-      // Checking that the given file is a md !
-      if (!file.toString().endsWith("md"))
-         return;
-
-      // Absolute path to the file, with given basePath in cmd
-      File absFile = new File(basePath + File.separator + file);
-
-      // Checking that the file isn't a directory !
-      if (absFile.isDirectory() || !absFile.exists())
-         throw new IllegalArgumentException("'" + absFile + "' isn't a valid file !");
-
-      // Path to HTML file
-      File buildFile = new File(basePath + File.separator + "build" + File.separator + file + ".html");
-
-      // Checks that the corresponding folder exists in the build folder
-      if (!buildFile.getParentFile().exists() && !buildFile.getParentFile().mkdirs()) {
-         throw new RuntimeException("Can't create folder '" + buildFile.getParentFile() + "' !");
-      }
-
-      // Converts MD to HTML
-      BufferedReader reader = new BufferedReader(new FileReader(absFile));
-      Parser parser = Parser.builder().build();
-      Node document = parser.parseReader(reader);
-      HtmlRenderer renderer = HtmlRenderer.builder().build();
-      var data = renderer.render(document);
-
-      data = putContentToLayout(data);
-
-      // Dumps the datas to the HTML file
-      try (
-            FileOutputStream fos = new FileOutputStream(buildFile);
-            BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-         byte[] bytes = data.getBytes();
-         bos.write(bytes);
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
-
-   }*/
 }
