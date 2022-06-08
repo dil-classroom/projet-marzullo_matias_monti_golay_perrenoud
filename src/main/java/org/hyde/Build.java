@@ -4,6 +4,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -32,7 +33,7 @@ class Build implements Callable<Integer> {
     */
    @Override
    public Integer call() {
-      File baseFile = new File(String.valueOf(basePath));
+      File baseFile = new File(String.valueOf(basePath)); // TODO : Use toFile
 
       // Vérifie que le chemin donné pointe sur une ressource existante
       if (!baseFile.exists()) {
@@ -73,25 +74,51 @@ class Build implements Callable<Integer> {
    }
 
    /**
-    * Génère le site récursivement à partir d'un fichier ou dossier
+    * Traite récursivement les dossiers et génère les fichiers
     * @param file Chemin à traiter. Relatif à basePath (donné dans la ligne de commande)
-    * @throws IOException S'l est impossible d'ouvrir un fichier (fichier à générer, configuration, template) ou de créer le dossier de destination
+    * @throws IOException S'il est impossible d'ouvrir un fichier (fichier à générer, configuration, template) ou de créer le dossier de destination
     */
    private void build(File file) throws IOException {
-      if (excludedFiles.contains(file.getName()))
-         return;
+      // Ignore les fichiers à ignorer
+      if (excludedFiles.contains(file.getName())) return;
 
-      var absPath = new File(basePath + File.separator + file);
+      // TODO : Ignore les dossiers à ignorer (ainsi que le contenu des dossiers)
 
-      if (absPath.isFile()) {
-         metadataTemplating(file);
-         buildMD(file);
-         if (file.toString().endsWith(".md"))
-            checkFileInclusion(file + ".html");
-      } else {
-         // Liste le contenu du dossier
-         for (String subfile : Objects.requireNonNull(absPath.list())) {
-            build(new File(String.valueOf(basePath.relativize(Path.of(absPath + File.separator + subfile)))));
+      // Créé le path où build
+      File buildFile = new File("build" + File.separator + file);
+
+      if (file.isDirectory()) { // Si c'est un dossier
+         // Créer le sous-dossier dans build
+         if (!buildFile.exists() && buildFile.mkdirs()) {
+            System.err.println("Can't create build folders for '" + buildFile + "' !");
+            return;
+         }
+
+         // Liste le contenu du dossier et rappelle build récursivement
+         for (String subfile : Objects.requireNonNull(file.list())) {
+            build(new File(file + File.separator + subfile));
+         }
+      } else { // Si c'est un fichier
+         // Vérifier que les dossiers parents existent, sinon les créer
+         if (!buildFile.getParentFile().exists() && !buildFile.getParentFile().mkdirs()) {
+            System.err.println("Can't create build folders '" + buildFile.getParentFile() + "' !");
+            return;
+         }
+
+         // Assure que le fichier de destination dans build est créé
+         if (!buildFile.exists()) {
+            new FileOutputStream(buildFile).close();
+         }
+
+         if (file.getName().endsWith(".md")) { // Si c'est un fichier MD
+            // Génère le contenu à partir d'un fichier MD
+            buildMD(file);
+         } else { // Pour tous les autres fichiers
+            // Copie le fichier dans build
+            Files.copy(
+                    Path.of(basePath + File.separator + file),
+                    Path.of(basePath + File.separator + buildFile)
+            );
          }
       }
    }
