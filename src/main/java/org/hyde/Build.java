@@ -256,9 +256,30 @@ class Build implements Callable<Integer> {
    }
 
    private String fileInclusion(String data) throws IOException {
-      // TODO
+      String patt = "\\[\\[\\+ '(.+\\.html)' ]]";
+      Pattern pattern = Pattern.compile(patt);
+      Matcher matcher = pattern.matcher(data);
 
-      return data;
+      StringBuilder sb = new StringBuilder();
+
+      while (matcher.find()) {
+         // Charge le fichier dont le nom est dans matcher.group(1)
+         File repFile = new File(basePath + File.separator + matcher.group(1));
+         StringBuilder fileContent = new StringBuilder();
+
+         try (BufferedReader reader = new BufferedReader(new FileReader(repFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+               fileContent.append(line).append(System.getProperty("line.separator"));
+            }
+         }
+
+         // Remplace le contenu
+         matcher.appendReplacement(sb, fileContent.toString());
+      }
+      matcher.appendTail(sb);
+
+      return sb.toString();
    }
 
    private String varReplacement(String data, HashMap<String, String> local, HashMap<String, String> global) {
