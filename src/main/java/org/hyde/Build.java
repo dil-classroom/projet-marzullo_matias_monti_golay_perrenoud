@@ -9,18 +9,14 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Callable;
 
+// File inclusion and variable replacement
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// HTML Parser
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-
-// CHECK : Assurer la gestion d'erreur (throw si rien n'est faisable, return si 1 fichier rate)
-// CHECK : Récrire Javadocs
-// TODO : File inclusion et varReplacement pourrait retourner le nb de remplacement et do while tant que != 0
-   // Comment gérer en cas de boucle infinie ?
-// TODO : Ignorer les fichiers commençant par ._* (MacOS rpz)
 
 @Command(name = "build")
 
@@ -81,7 +77,7 @@ class Build implements Callable<Integer> {
     * Traite récursivement les dossiers et génère les fichiers
     * @param file Chemin à traiter. Relatif à basePath (donné dans la ligne de commande)
     * @return 0 en cas de succès, 1 en cas d'erreur
-    * @throws IOException S'il est impossible d'ouvrir un fichier (fichier à générer, configuration, template) ou de créer le dossier de destination
+    * @throws IOException Voir throws de la fonction buildMD
     */
    private Integer build(File file) throws IOException {
       if (file == null) file = new File("");
@@ -302,7 +298,7 @@ class Build implements Callable<Integer> {
    /**
     * Gère l'inclusion de fichier dans un contenu HTML
     * @param data Contenu HTML à traiter
-    * @return Nouveau contenu HTML avec les inclusions
+    * @return Nouveau contenu HTML avec les inclusions ou null si une erreur mineure est survenue
     */
    private String fileInclusion(String data) {
       String patt = "\\[\\[\\+ '(.+\\.html)' ]]";
@@ -364,7 +360,7 @@ class Build implements Callable<Integer> {
    /**
     * Lit les headers de configuration d'un fichier .md
     * @param file doit être un chemin relatif vers le fichier à lire
-    * @return La configuration parsée
+    * @return La configuration parsée ou null si une erreur mineure est survenue
     */
    private HashMap<String, String> getLocalConfig(File file) {
       var config = new HashMap<String, String>();
