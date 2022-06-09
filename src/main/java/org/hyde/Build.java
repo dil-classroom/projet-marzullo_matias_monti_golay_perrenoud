@@ -19,6 +19,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
 // TODO : Assurer la gestion d'erreur (throw si rien n'est faisable, return si 1 fichier rate)
 // TODO : Récrire Javadocs
 // TODO : Implémenter cache reader + cache writer (avec lambda de traitement)
+// TODO : File inclusion et varReplacement pourrait retourner le nb de remplacement et do while tant que != 0
 
 @Command(name = "build")
 
@@ -77,6 +78,7 @@ class Build implements Callable<Integer> {
    /**
     * Traite récursivement les dossiers et génère les fichiers
     * @param file Chemin à traiter. Relatif à basePath (donné dans la ligne de commande)
+    * @return 0 en cas de succès, 1 en cas d'erreur
     * @throws IOException S'il est impossible d'ouvrir un fichier (fichier à générer, configuration, template) ou de créer le dossier de destination
     */
    private Integer build(File file) throws IOException {
@@ -205,7 +207,8 @@ class Build implements Callable<Integer> {
    /**
     * Génère la page HTML à partir d'un MD avec le fichier de template
     * @param file chemin relatif à build
-    * @return 0 en cas de succès, 1 autrement
+    * @return 0 en cas de succès, 1 en cas d'erreur
+    * @throws IOException Venant de la fonction getConfig
     */
    private Integer buildMD(File file) throws IOException {
       // Récupère la configuration globale du projet
@@ -290,6 +293,11 @@ class Build implements Callable<Integer> {
       return 0;
    }
 
+   /**
+    * Gère l'inclusion de fichier dans un contenu HTML
+    * @param data Contenu HTML à traiter
+    * @return Nouveau contenu HTML avec les inclusions
+    */
    private String fileInclusion(String data) {
       String patt = "\\[\\[\\+ '(.+\\.html)' ]]";
       Pattern pattern = Pattern.compile(patt);
@@ -320,6 +328,13 @@ class Build implements Callable<Integer> {
       return sb.toString();
    }
 
+   /**
+    * Remplace les variables dans un contenu HMTL
+    * @param data Le contenu HMTL à traiter
+    * @param local Les variables locales au fichier
+    * @param global Les variables globales au site
+    * @return Le contenu HMTL traité
+    */
    private String varReplacement(String data, HashMap<String, String> local, HashMap<String, String> global) {
       String patt = "\\[\\[ (page|config).(\\S+) ]]";
       Pattern pattern = Pattern.compile(patt);
