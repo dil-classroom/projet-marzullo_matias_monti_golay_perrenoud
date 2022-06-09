@@ -1,5 +1,6 @@
 package org.hyde;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 
 import io.javalin.Javalin;
@@ -27,9 +28,19 @@ class Serve implements Callable<Integer> {
    public Integer call() {
       System.out.println("Starting server...");
 
-      Javalin.create(config -> {
-         config.addStaticFiles(site + "/build/index.md.html", Location.EXTERNAL);
-      }).start(8080);
+      // Path vers le dossier build à servir
+      File index = new File(site + File.separator + "build");
+
+      // Vérifie que le dossier existe
+      if (!index.exists()) {
+         System.err.println("Please build project before serving !");
+         return 1;
+      }
+
+      // Sert le dossier comme serveur web
+      Javalin.create(config ->
+              config.addStaticFiles(index.toString(), Location.EXTERNAL)
+      ).start(8080);
 
       return 0;
    }
