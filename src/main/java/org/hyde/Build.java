@@ -250,15 +250,29 @@ class Build implements Callable<Integer> {
          HTML_content = sb.toString();
       }
 
-      // TODO : Ici, HTML_content contient le HTML à traiter et écrire
-      // TODO : Remplacement de variable
-      // TODO : File inclusion
+      // File inclusion
+      HTML_content = fileInclusion(HTML_content);
+
+      // Remplacement de variable
+      HTML_content = varReplacement(HTML_content, localConfig, globalConfig);
 
       // Écrit le contenu généré dans le fichier de destination
       File outputAbsFile = new File(basePath + File.separator + "build" + File.separator + file);
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputAbsFile))) {
          writer.write(HTML_content);
       }
+   }
+
+   private String fileInclusion(String data) throws IOException {
+      // TODO
+
+      return data;
+   }
+
+   private String varReplacement(String data, HashMap<String, String> local, HashMap<String, String> global) {
+      // TODO
+
+      return data;
    }
 
    /**
