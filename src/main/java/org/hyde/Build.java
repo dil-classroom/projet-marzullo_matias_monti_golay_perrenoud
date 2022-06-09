@@ -283,9 +283,23 @@ class Build implements Callable<Integer> {
    }
 
    private String varReplacement(String data, HashMap<String, String> local, HashMap<String, String> global) {
-      // TODO
+      String patt = "\\[\\[ (page|config).(\\S+) ]]";
+      Pattern pattern = Pattern.compile(patt);
+      Matcher matcher = pattern.matcher(data);
 
-      return data;
+      StringBuilder sb = new StringBuilder();
+
+      while (matcher.find()) {
+         if (matcher.group(1).equals("page")) {
+            matcher.appendReplacement(sb, local.getOrDefault(matcher.group(2), "MISSING KEY '"+matcher.group(1)+"."+matcher.group(2)+"'"));
+         } else {
+            matcher.appendReplacement(sb, global.getOrDefault(matcher.group(2), "MISSING KEY '"+matcher.group(1)+"."+matcher.group(2)+"'"));
+         }
+      }
+
+      matcher.appendTail(sb);
+
+      return sb.toString();
    }
 
    /**
