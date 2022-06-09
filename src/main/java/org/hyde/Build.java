@@ -16,6 +16,10 @@ import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
+// TODO : Assurer la gestion d'erreur (throw si rien n'est faisable, return si 1 fichier rate)
+// TODO : Récrire Javadocs
+// TODO : Implémenter cache reader + cache writer (avec lambda de traitement)
+
 @Command(name = "build")
 
 class Build implements Callable<Integer> {
@@ -120,10 +124,15 @@ class Build implements Callable<Integer> {
             return buildMD(file);
          } else { // Pour tous les autres fichiers
             // Copie le fichier dans build
-            Files.copy(
-                    absFile.toPath(),
-                    absBuildFile.toPath()
-            );
+            try {
+               Files.copy(
+                       absFile.toPath(),
+                       absBuildFile.toPath()
+               );
+            } catch (IOException e) {
+               System.err.println("Can't copy file '"+file+"'");
+               return 1;
+            }
 
             return 0;
          }
@@ -196,14 +205,17 @@ class Build implements Callable<Integer> {
    /**
     * Génère la page HTML à partir d'un MD avec le fichier de template
     * @param file chemin relatif à build
-    * @throws IOException En cas d'erreur avec la lecture ou la création d'un fichier
+    * @return 0 en cas de succès, 1 autrement
     */
    private Integer buildMD(File file) throws IOException {
       // Récupère la configuration globale du projet
       var globalConfig = getConfig();
 
       // Récupère la configuration locale du fichier
-      var localConfig = getLocalConfig(file);
+      HashMap<String, String> localConfig = getLocalConfig(file);
+
+      // Si getLocalConfig retourne 1, c'est que le fichier est malformé et il faut l'ignorer !
+      if (localConfig == null) return 1;
 
       // Lecture et traitement du md
       String HTML_content;
@@ -223,6 +235,9 @@ class Build implements Callable<Integer> {
          Node document = parser.parseReader(reader);
          HtmlRenderer renderer = HtmlRenderer.builder().build();
          HTML_content = renderer.render(document);
+      } catch(IOException e) {
+         System.err.println("Can't read file '"+file+"' !");
+         return 1;
       }
 
       // Si template.html existe, lit le fichier et insère le contenu
@@ -233,9 +248,7 @@ class Build implements Callable<Integer> {
 
          // Lit le fichier de template
          // Insère le contenu à sa place
-         try (
-                 BufferedReader reader = new BufferedReader(new FileReader(templateFile))
-         ) {
+         try (BufferedReader reader = new BufferedReader(new FileReader(templateFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
                if (line.contains("[[ content ]]")) {
@@ -245,17 +258,21 @@ class Build implements Callable<Integer> {
 
                sb.append(line).append(System.getProperty("line.separator"));
             }
+         } catch(IOException e) {
+            System.err.println("Can't read template file !");
+            return 1;
          }
 
-         // Si le fichier template
+         // Si le fichier template ne contient pas le tag "content", impossible de générer le site !
          if (!gotContent)
-            throw new RuntimeException("Template file doesn't contain a \"[[ content ]] tag.\" ");
+            throw new RuntimeException("Template file doesn't contain a '[[ content ]]' tag ! Can't build the site.");
 
          HTML_content = sb.toString();
       }
 
       // File inclusion
       HTML_content = fileInclusion(HTML_content);
+      if (HTML_content == null) return 1;
 
       // Remplacement de variable
       HTML_content = varReplacement(HTML_content, localConfig, globalConfig);
@@ -265,12 +282,15 @@ class Build implements Callable<Integer> {
       File outputAbsFile = new File(basePath + File.separator + "build" + File.separator + htmlFile);
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputAbsFile))) {
          writer.write(HTML_content);
+      } catch (IOException e) {
+         System.err.println("Can't write file '"+htmlFile+"'");
+         return 1;
       }
 
       return 0;
    }
 
-   private String fileInclusion(String data) throws IOException {
+   private String fileInclusion(String data) {
       String patt = "\\[\\[\\+ '(.+\\.html)' ]]";
       Pattern pattern = Pattern.compile(patt);
       Matcher matcher = pattern.matcher(data);
@@ -287,6 +307,9 @@ class Build implements Callable<Integer> {
             while ((line = reader.readLine()) != null) {
                fileContent.append(line).append(System.getProperty("line.separator"));
             }
+         } catch (IOException e) {
+            System.err.println("Can't include file '"+repFile+"'");
+            return null;
          }
 
          // Remplace le contenu
@@ -321,9 +344,8 @@ class Build implements Callable<Integer> {
     * Lit les headers de configuration d'un fichier .md
     * @param file doit être un chemin relatif vers le fichier à lire
     * @return La configuration parsée
-    * @throws IOException En cas d'erreur avec le fichier
     */
-   private HashMap<String, String> getLocalConfig(File file) throws IOException {
+   private HashMap<String, String> getLocalConfig(File file) {
       var config = new HashMap<String, String>();
 
       try (BufferedReader reader = new BufferedReader(new FileReader(basePath + File.separator + file))) {
@@ -346,8 +368,11 @@ class Build implements Callable<Integer> {
             // Ajoute la valeur à la configuration chargée
             config.put(key_value[0], key_value[1]);
          }
+      } catch (IOException e) {
+         System.err.println("Can't read config on top of '"+file+"'");
+         return null;
       }
 
-      throw new RuntimeException("Unterminated headers in md file '" + file + "'.");
+      return null;
    }
 }
