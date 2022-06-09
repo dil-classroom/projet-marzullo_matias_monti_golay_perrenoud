@@ -16,16 +16,18 @@ import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
-// TODO : Assurer la gestion d'erreur (throw si rien n'est faisable, return si 1 fichier rate)
-// TODO : Récrire Javadocs
-// TODO : Implémenter cache reader + cache writer (avec lambda de traitement)
+// CHECK : Assurer la gestion d'erreur (throw si rien n'est faisable, return si 1 fichier rate)
+// CHECK : Récrire Javadocs
 // TODO : File inclusion et varReplacement pourrait retourner le nb de remplacement et do while tant que != 0
+   // Comment gérer en cas de boucle infinie ?
+// TODO : Ignorer les fichiers commençant par ._* (MacOS rpz)
 
 @Command(name = "build")
 
 class Build implements Callable<Integer> {
-   public static final List<String> excludedFiles = List.of("config.yaml", ".", "..");
-   public static final List<String> excludedFolders = List.of("build", "template", ".", "..");
+   private static final List<String> excludedFiles = List.of("config.yaml", ".", "..");
+   private static final List<String> excludedFilePatterns = List.of("\\._.*");
+   private static final List<String> excludedFolders = List.of("build", "template", ".", "..");
 
    @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The path where to build the site.")
    private final Path basePath = Path.of("."); // Le "." sert de valeur par défaut
@@ -87,9 +89,13 @@ class Build implements Callable<Integer> {
       // Path absolu du fichier
       File absFile = new File(basePath + File.separator + file);
 
-      // Ignore les fichiers à ignorer
-      // Ignore les dossiers à ignorer
-      if ((!absFile.isDirectory() && excludedFiles.contains(file.getName())) || excludedFolders.contains(file.getName()))
+      if (!absFile.isDirectory()) { // Ignore les fichiers à ignorer
+         if (excludedFiles.contains(file.getName())) return 0;
+
+         for (String patt : excludedFilePatterns)
+            if (file.getName().matches(patt))
+               return 0;
+      } else if (excludedFolders.contains(file.getName())) // Ignore les dossiers à ignorer
          return 0;
 
 
