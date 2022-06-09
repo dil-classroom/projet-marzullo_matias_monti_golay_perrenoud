@@ -20,7 +20,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
 
 class Build implements Callable<Integer> {
    public static final List<String> excludedFiles = List.of("config.yaml", ".", "..");
-   public static final List<String> excludedFolders = List.of("build", "template");
+   public static final List<String> excludedFolders = List.of("build", "template", ".", "..");
 
    @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The path where to build the site.")
    private final Path basePath = Path.of("."); // Le "." sert de valeur par défaut
@@ -62,14 +62,12 @@ class Build implements Callable<Integer> {
 
       // Génère le site de manière récursive
       try {
-         build(new File(""));
+         return build(new File(""));
       } catch (IOException e) {
          System.err.println("An error happened during the generation of the content");
          e.printStackTrace();
          return 1;
       }
-
-      return 0;
    }
 
    /**
@@ -77,42 +75,57 @@ class Build implements Callable<Integer> {
     * @param file Chemin à traiter. Relatif à basePath (donné dans la ligne de commande)
     * @throws IOException S'il est impossible d'ouvrir un fichier (fichier à générer, configuration, template) ou de créer le dossier de destination
     */
-   private void build(File file) throws IOException {
+   private Integer build(File file) throws IOException {
+      if (file == null) file = new File("");
+
+      // Path absolu du fichier
       File absFile = new File(basePath + File.separator + file);
+
       // Ignore les fichiers à ignorer
       // Ignore les dossiers à ignorer
-      if ((!absFile.isDirectory() && excludedFiles.contains(file.getName())) || excludedFolders.contains(file.getName())) return;
+      if ((!absFile.isDirectory() && excludedFiles.contains(file.getName())) || excludedFolders.contains(file.getName()))
+         return 0;
+
 
       // Créé le path où build
       File absBuildFile = new File(basePath + File.separator + "build" + File.separator + file);
 
       if (absFile.isDirectory()) { // Si c'est un dossier
+         System.out.println("Handling folder '" + file + "'");
+
          // Créer le sous-dossier dans build
          if (!absBuildFile.exists() && !absBuildFile.mkdirs()) {
             System.err.println("Can't create build folders for '" + absBuildFile + "' !");
-            return;
+            return 1;
          }
 
          // Liste le contenu du dossier et rappelle build récursivement
+         int retour = 0;
          for (String subfile : Objects.requireNonNull(absFile.list())) {
-            build(new File(file + File.separator + subfile));
+            if (build(new File(file + File.separator + subfile)) != 0)
+               retour = 1;
          }
+         return retour;
       } else { // Si c'est un fichier
+         System.out.println("Building file '" + file + "'");
+
          // Vérifier que les dossiers parents existent, sinon les créer
          if (!absBuildFile.getParentFile().exists() && !absBuildFile.getParentFile().mkdirs()) {
             System.err.println("Can't create build folders '" + absBuildFile.getParentFile() + "' !");
-            return;
+            return 1;
          }
 
          if (file.getName().endsWith(".md")) { // Si c'est un fichier MD
             // Génère le contenu à partir d'un fichier MD
-            buildMD(file);
+            return buildMD(file);
          } else { // Pour tous les autres fichiers
             // Copie le fichier dans build
             Files.copy(
                     absFile.toPath(),
                     absBuildFile.toPath()
             );
+
+            return 0;
          }
       }
    }
@@ -185,7 +198,7 @@ class Build implements Callable<Integer> {
     * @param file chemin relatif à build
     * @throws IOException En cas d'erreur avec la lecture ou la création d'un fichier
     */
-   private void buildMD(File file) throws IOException {
+   private Integer buildMD(File file) throws IOException {
       // Récupère la configuration globale du projet
       var globalConfig = getConfig();
 
@@ -253,6 +266,8 @@ class Build implements Callable<Integer> {
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputAbsFile))) {
          writer.write(HTML_content);
       }
+
+      return 0;
    }
 
    private String fileInclusion(String data) throws IOException {
