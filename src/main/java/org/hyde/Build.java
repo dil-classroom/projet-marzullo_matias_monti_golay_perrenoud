@@ -195,7 +195,7 @@ class Build implements Callable<Integer> {
       var globalConfig = getConfig();
 
       // Récupère la configuration locale du fichier
-      var localConfig = getLocalConfig(new File(basePath + File.separator + file));
+      var localConfig = getLocalConfig(file);
 
       // Lecture et traitement du md
       String HTML_content;
@@ -263,14 +263,14 @@ class Build implements Callable<Integer> {
 
    /**
     * Lit les headers de configuration d'un fichier .md
-    * @param file doit être un chemin ABSOLU vers le fichier
+    * @param file doit être un chemin relatif vers le fichier à lire
     * @return La configuration parsée
     * @throws IOException En cas d'erreur avec le fichier
     */
    private HashMap<String, String> getLocalConfig(File file) throws IOException {
       var config = new HashMap<String, String>();
 
-      try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+      try (BufferedReader reader = new BufferedReader(new FileReader(basePath + File.separator + file))) {
          // Si le fichier ne commence pas par le séparateur, il n'y a pas de config
          if (!reader.readLine().equals("---")) return config;
 
