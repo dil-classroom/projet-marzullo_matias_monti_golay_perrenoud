@@ -79,7 +79,7 @@ class New implements Callable<Integer> {
               "auteur: Bertil Chapuis",
               "date: 2021-03-10",
               "...",
-              "#[[ config.titre ]]",
+              "# [[ config.titre ]]",
               "## [[ page.titre ]]",
               "### Mon sous-titre",
               "[[ page.auteur ]] - [[ page.date ]]",
