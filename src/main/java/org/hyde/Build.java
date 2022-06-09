@@ -200,22 +200,19 @@ class Build implements Callable<Integer> {
       // Lecture et traitement du md
       String HTML_content;
       try (BufferedReader reader = new BufferedReader(new FileReader(basePath + File.separator + file))) {
-         StringBuilder content = new StringBuilder();
-
          // Lit le md dans un String en retirant les headers de configuration
-         boolean configEndFound = localConfig.isEmpty();
-         String line;
-         while ((line = reader.readLine()) != null) {
-            if (!configEndFound && line.equals("...")) {
-               configEndFound = true;
-               continue;
+         if (!localConfig.isEmpty()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+               if (line.equals("...")) {
+                  break;
+               }
             }
-            content.append(line).append(System.getProperty("line.separator"));
          }
 
          // Transforme le contenu du MD en HTML
          Parser parser = Parser.builder().build();
-         Node document = parser.parse(content.toString());
+         Node document = parser.parseReader(reader);
          HtmlRenderer renderer = HtmlRenderer.builder().build();
          HTML_content = renderer.render(document);
       }
@@ -243,9 +240,8 @@ class Build implements Callable<Integer> {
          }
 
          // Si le fichier template
-         if (!gotContent) {
+         if (!gotContent)
             throw new RuntimeException("Template file doesn't contain a \"[[ content ]] tag.\" ");
-         }
 
          HTML_content = sb.toString();
       }
