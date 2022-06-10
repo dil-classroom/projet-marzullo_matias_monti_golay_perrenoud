@@ -4,16 +4,16 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Callable;
 
-import java.util.List;
+// File inclusion and variable replacement
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// HTML Parser
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -21,254 +21,375 @@ import org.commonmark.renderer.html.HtmlRenderer;
 @Command(name = "build")
 
 class Build implements Callable<Integer> {
-   public static final List<String> excluded = List.of("config.yaml", "build");
+   private static final List<String> excludedFiles = List.of("config.yaml", ".", "..");
+   private static final List<String> excludedFilePatterns = List.of("\\._.*");
+   private static final List<String> excludedFolders = List.of("build", "template", ".", "..");
 
    @CommandLine.Parameters(arity = "0..1", paramLabel = "SITE", description = "The path where to build the site.")
-   private Path basePath = Path.of(".");
+   private final Path basePath = Path.of("."); // Le "." sert de valeur par défaut
 
+   /**
+    * Fonction "main" appelée par le terminal
+    * @return 1 en cas d'erreur, 0 si tout s'est bien passé
+    */
    @Override
    public Integer call() {
-      File baseFile = new File(String.valueOf(basePath));
-      if (!(baseFile.isDirectory()) || !baseFile.exists())
-         return 1;
-      File buildFile = new File(baseFile.getAbsolutePath() + File.separator + "build");
+      File baseFile = basePath.toFile();
 
-      // Checks or creates that the build folder exists
-      if (!buildFile.exists()) {
-         if (!buildFile.mkdir())
-            return 1;
-      } else {
-         if (!buildFile.isDirectory())
-            return 1;
+      // Vérifie que le chemin donné pointe sur une ressource existante
+      if (!baseFile.exists()) {
+         System.err.println("Given path doesn't point to an existing folder. Please create folder with \"new\" command.");
+         return 1;
       }
 
-      // Starts the recursive building of the folder
+      // Vérifie que le chemin donné pointe vers un dossier
+      if (!(baseFile.isDirectory())) {
+         System.err.println("Given path is not a folder.");
+         return 1;
+      }
+
+      File baseBuild = new File(baseFile.getAbsolutePath() + File.separator + "build");
+
+      // Vérifie que le chemin de build pointe vers un dossier existant ou créable
+      if (!baseBuild.exists()) {
+         if (!baseBuild.mkdir()) {
+            System.err.println("Can't create build folder");
+            return 1;
+         }
+      } else {
+         if (!baseBuild.isDirectory()) {
+            System.err.println("Build path is not a folder !");
+            return 1;
+         }
+      }
+
+      // Génère le site de manière récursive
       try {
-         build(new File(""));
+         return build(new File(""));
       } catch (IOException e) {
+         System.err.println("An error happened during the generation of the content");
          e.printStackTrace();
+         return 1;
+      }
+   }
+
+   /**
+    * Traite récursivement les dossiers et génère les fichiers
+    * @param file Chemin à traiter. Relatif à basePath (donné dans la ligne de commande)
+    * @return 0 en cas de succès, 1 en cas d'erreur
+    * @throws IOException Voir throws de la fonction buildMD
+    */
+   private Integer build(File file) throws IOException {
+      if (file == null) file = new File("");
+
+      // Path absolu du fichier
+      File absFile = new File(basePath + File.separator + file);
+
+      if (!absFile.isDirectory()) { // Ignore les fichiers à ignorer
+         if (excludedFiles.contains(file.getName())) return 0;
+
+         for (String patt : excludedFilePatterns)
+            if (file.getName().matches(patt))
+               return 0;
+      } else if (excludedFolders.contains(file.getName())) // Ignore les dossiers à ignorer
+         return 0;
+
+
+      // Créé le path où build
+      File absBuildFile = new File(basePath + File.separator + "build" + File.separator + file);
+
+      if (absFile.isDirectory()) { // Si c'est un dossier
+         System.out.println("Handling folder '" + file + "'");
+
+         // Créer le sous-dossier dans build
+         if (!absBuildFile.exists() && !absBuildFile.mkdirs()) {
+            System.err.println("Can't create build folders for '" + absBuildFile + "' !");
+            return 1;
+         }
+
+         // Liste le contenu du dossier et rappelle build récursivement
+         int retour = 0;
+         for (String subfile : Objects.requireNonNull(absFile.list())) {
+            if (build(new File(file + File.separator + subfile)) != 0)
+               retour = 1;
+         }
+         return retour;
+      } else { // Si c'est un fichier
+         System.out.println("Building file '" + file + "'");
+
+         // Vérifier que les dossiers parents existent, sinon les créer
+         if (!absBuildFile.getParentFile().exists() && !absBuildFile.getParentFile().mkdirs()) {
+            System.err.println("Can't create build folders '" + absBuildFile.getParentFile() + "' !");
+            return 1;
+         }
+
+         if (file.getName().endsWith(".md")) { // Si c'est un fichier MD
+            // Génère le contenu à partir d'un fichier MD
+            return buildMD(file);
+         } else { // Pour tous les autres fichiers
+            // Copie le fichier dans build
+            try {
+               Files.copy(
+                       absFile.toPath(),
+                       absBuildFile.toPath()
+               );
+            } catch (IOException e) {
+               System.err.println("Can't copy file '"+file+"'");
+               return 1;
+            }
+
+            return 0;
+         }
+      }
+   }
+
+   /**
+    * Charge la configuration globale
+    * @return retourne la configuration chargée
+    * @throws IOException Si le fichier de configuration n'est pas lisible
+    */
+   private HashMap<String, String> getConfig() throws IOException {
+      var config = new HashMap<String, String>();
+
+      // Ouvre le fichier config.yaml et vérifie qu'il existe
+      File configFile = new File(basePath + File.separator + "config.yaml");
+      if (!configFile.exists()) {
+         return config;
+      }
+
+      // Lis le fichier ligne par ligne
+      try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+         String line;
+         while((line = reader.readLine()) != null) {
+            // Transforme la ligne en clé:valeur
+            var key_value = lineToConfig(line);
+
+            // Si la ligne ne contient pas de headers, continue
+            if (key_value == null) continue;
+
+            // Ajoute la valeur à la configuration chargée
+            config.put(key_value[0], key_value[1]);
+         }
+      }
+
+      return config;
+   }
+
+   /**
+    * Traite une ligne de texte qui devrait contenir une clé:valeur
+    * @param line Ligne à traiter
+    * @return clé:valeur ou null la ligne est invalide ou à ignorer
+    */
+   private String[] lineToConfig(String line) {
+      // Si la ligne est vide, ignore
+      if (line.isEmpty()) return null;
+
+      // Ignore les commentaires
+      if (line.startsWith("#")) return null;
+
+      // Assure que la ligne contient un :
+      if (!line.contains(":")) {
+         System.err.println("Invalid line in config : '"+line+"'");
+         return null;
+      }
+
+      // Split la ligne par le ":" pour séparer clé et valeur
+      String[] key_value = line.split(":", 2);
+
+      // Retire un éventuel espace de fin sur la clé
+      if (key_value[0].endsWith(" ")) key_value[0] = key_value[0].substring(0, key_value[0].length()-1);
+
+      // Retire un éventuel espace de départ sur la valeur
+      if (key_value[1].startsWith(" ")) key_value[1] = key_value[1].substring(1);
+
+      // Retourne la clé et la valeur
+      return key_value;
+   }
+
+   /**
+    * Génère la page HTML à partir d'un MD avec le fichier de template
+    * @param file chemin relatif à build
+    * @return 0 en cas de succès, 1 en cas d'erreur
+    * @throws IOException Venant de la fonction getConfig
+    */
+   private Integer buildMD(File file) throws IOException {
+      // Récupère la configuration globale du projet
+      var globalConfig = getConfig();
+
+      // Récupère la configuration locale du fichier
+      HashMap<String, String> localConfig = getLocalConfig(file);
+
+      // Si getLocalConfig retourne 1, c'est que le fichier est malformé et il faut l'ignorer !
+      if (localConfig == null) return 1;
+
+      // Lecture et traitement du md
+      String HTML_content;
+      try (BufferedReader reader = new BufferedReader(new FileReader(basePath + File.separator + file))) {
+         // Lit le md dans un String en retirant les headers de configuration
+         if (!localConfig.isEmpty()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+               if (line.equals("...")) {
+                  break;
+               }
+            }
+         }
+
+         // Transforme le contenu du MD en HTML
+         Parser parser = Parser.builder().build();
+         Node document = parser.parseReader(reader);
+         HtmlRenderer renderer = HtmlRenderer.builder().build();
+         HTML_content = renderer.render(document);
+      } catch(IOException e) {
+         System.err.println("Can't read file '"+file+"' !");
+         return 1;
+      }
+
+      // Si template.html existe, lit le fichier et insère le contenu
+      File templateFile = new File(basePath + File.separator + "template" + File.separator + "template.html");
+      if (templateFile.exists()) {
+         StringBuilder sb = new StringBuilder();
+         boolean gotContent = false;
+
+         // Lit le fichier de template
+         // Insère le contenu à sa place
+         try (BufferedReader reader = new BufferedReader(new FileReader(templateFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+               if (line.contains("[[ content ]]")) {
+                  line = line.replace("[[ content ]]", HTML_content);
+                  gotContent = true;
+               }
+
+               sb.append(line).append(System.getProperty("line.separator"));
+            }
+         } catch(IOException e) {
+            System.err.println("Can't read template file !");
+            return 1;
+         }
+
+         // Si le fichier template ne contient pas le tag "content", impossible de générer le site !
+         if (!gotContent)
+            throw new RuntimeException("Template file doesn't contain a '[[ content ]]' tag ! Can't build the site.");
+
+         HTML_content = sb.toString();
+      }
+
+      // File inclusion
+      HTML_content = fileInclusion(HTML_content);
+      if (HTML_content == null) return 1;
+
+      // Remplacement de variable
+      HTML_content = varReplacement(HTML_content, localConfig, globalConfig);
+
+      // Écrit le contenu généré dans le fichier de destination
+      File htmlFile = new File(file.toString().substring(0, file.toString().length() - 2) + "html");
+      File outputAbsFile = new File(basePath + File.separator + "build" + File.separator + htmlFile);
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputAbsFile))) {
+         writer.write(HTML_content);
+      } catch (IOException e) {
+         System.err.println("Can't write file '"+htmlFile+"'");
          return 1;
       }
 
       return 0;
    }
 
-   private void build(File file) throws IOException {
-      if (excluded.contains(file.getName()))
-         return;
+   /**
+    * Gère l'inclusion de fichier dans un contenu HTML
+    * @param data Contenu HTML à traiter
+    * @return Nouveau contenu HTML avec les inclusions ou null si une erreur mineure est survenue
+    */
+   private String fileInclusion(String data) {
+      String patt = "\\[\\[\\+ '(.+\\.html)' ]]";
+      Pattern pattern = Pattern.compile(patt);
+      Matcher matcher = pattern.matcher(data);
 
-      var absPath = new File(basePath + File.separator + file);
+      StringBuilder sb = new StringBuilder();
 
-      if (absPath.isFile()) {
-         metadataTemplating(file);
-         buildMD(file);
-         if (file.toString().endsWith(".md"))
-            checkFileInclusion(file + ".html");
-      } else {
-         // Liste le contenu du dossier
-         for (String subfile : Objects.requireNonNull(absPath.list())) {
-            build(new File(String.valueOf(basePath.relativize(Path.of(absPath + File.separator + subfile)))));
+      while (matcher.find()) {
+         // Charge le fichier dont le nom est dans matcher.group(1)
+         File repFile = new File(basePath + File.separator + matcher.group(1));
+         StringBuilder fileContent = new StringBuilder();
+
+         try (BufferedReader reader = new BufferedReader(new FileReader(repFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+               fileContent.append(line).append(System.getProperty("line.separator"));
+            }
+         } catch (IOException e) {
+            System.err.println("Can't include file '"+repFile+"'");
+            return null;
          }
+
+         // Remplace le contenu
+         matcher.appendReplacement(sb, fileContent.toString());
       }
+      matcher.appendTail(sb);
+
+      return sb.toString();
    }
 
    /**
-    * Check for file inclusions and charges them
-    * @param file path to the HTML file
-    * @throws IOException If the reader couldn't read the file
+    * Remplace les variables dans un contenu HMTL
+    * @param data Le contenu HMTL à traiter
+    * @param local Les variables locales au fichier
+    * @param global Les variables globales au site
+    * @return Le contenu HMTL traité
     */
-   private void checkFileInclusion(String file) throws IOException {
-      if (!file.endsWith(".html")) return;
+   private String varReplacement(String data, HashMap<String, String> local, HashMap<String, String> global) {
+      String patt = "\\[\\[ (page|config).(\\S+) ]]";
+      Pattern pattern = Pattern.compile(patt);
+      Matcher matcher = pattern.matcher(data);
 
-      BufferedReader mdReader = new BufferedReader(new FileReader(basePath+File.separator+"build"+File.separator+file));
-     
-      StringBuilder data = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
 
-      while(mdReader.ready()){
-         data.append(mdReader.readLine()).append("\n");
-      }
-      mdReader.close();
-     
-      Pattern filePattern = Pattern.compile("\\[\\[\\+ '.+\\.html' ]]");
-
-      Matcher fileMatcher = filePattern.matcher(data.toString());
-
-
-      while (fileMatcher.find()) {
-         String fileName = fileMatcher.group().substring(5, fileMatcher.group().length() - 4);
-         System.out.println(fileName);
-
-         BufferedReader fileInclusionReader = new BufferedReader(new FileReader(basePath+File.separator+"template"+File.separator+fileName));
-         System.out.println(basePath+File.separator+"template"+File.separator+fileName);
-         BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath+File.separator+"build"+File.separator+file));
-         StringBuilder fileInclusionData = new StringBuilder();
-
-         while(fileInclusionReader.ready()){
-            fileInclusionData.append(fileInclusionReader.readLine()).append("\n");
+      while (matcher.find()) {
+         if (matcher.group(1).equals("page")) {
+            matcher.appendReplacement(sb, local.getOrDefault(matcher.group(2), "MISSING KEY '"+matcher.group(1)+"."+matcher.group(2)+"'"));
+         } else {
+            matcher.appendReplacement(sb, global.getOrDefault(matcher.group(2), "MISSING KEY '"+matcher.group(1)+"."+matcher.group(2)+"'"));
          }
-
-         data = new StringBuilder(data.toString().replaceFirst("\\[\\[\\+ '.+\\.html' ]]", fileInclusionData.toString()));
-
-         mdWriter.write(String.valueOf(data));
-         mdWriter.close();
       }
-   }
 
+      matcher.appendTail(sb);
+
+      return sb.toString();
+   }
 
    /**
-    * Check for layout template, if present, charges content in there
-    * @param data content of the parsed html
-    * @throws IOException If the reader couldn't read the file
+    * Lit les headers de configuration d'un fichier .md
+    * @param file doit être un chemin relatif vers le fichier à lire
+    * @return La configuration parsée ou null si une erreur mineure est survenue
     */
-   private String putContentToLayout(String data) throws IOException {
-      File file = new File(basePath+File.separator+"template"+File.separator+"layout.html");
-      if(!file.exists())
-         return data;
-      System.out.println("test");
+   private HashMap<String, String> getLocalConfig(File file) {
+      var config = new HashMap<String, String>();
 
-      BufferedReader fileReader = new BufferedReader(new FileReader(file));
-      StringBuilder layoutcontent = new StringBuilder();
+      try (BufferedReader reader = new BufferedReader(new FileReader(basePath + File.separator + file))) {
+         // Si le fichier ne commence pas par le séparateur, il n'y a pas de config
+         if (!reader.readLine().equals("---")) return config;
 
-      while(fileReader.ready()){
-         layoutcontent.append(fileReader.readLine()).append("\n");
-      }
-      fileReader.close();
-
-      Pattern filePattern = Pattern.compile("\\[\\[ content ]]");
-
-      Matcher fileMatcher = filePattern.matcher(layoutcontent);
-
-
-      while (fileMatcher.find()) {
-         data = String.valueOf(new StringBuilder(layoutcontent.toString().replaceFirst("\\[\\[ content ]]", data)));
-      }
-
-      return data;
-   }
-  
-  /*
-    * Charges the metadatas requested in the file
-    * 
-    * @param file path to the md file
-    * @throws IOException If the reader couldn't read the config file
-    */
-   private void metadataTemplating(File file) throws IOException {
-      if (!file.toString().endsWith("md"))
-         return;
-
-      try (
-            BufferedReader configReader = new BufferedReader(new FileReader(basePath + File.separator + "config.yaml"));
-            BufferedReader mdReader = new BufferedReader(new FileReader(basePath + File.separator + file));
-            BufferedWriter mdWriter = new BufferedWriter(new FileWriter(basePath + File.separator + file))) {
-
-         List<String> configFile = new ArrayList<>();
-         StringBuilder data = new StringBuilder();
-
-         while (mdReader.ready()) {
-            data.append(mdReader.readLine()).append("\n");
-         }
-
-         while (configReader.ready()) {
-            configFile.add(configReader.readLine());
-         }
-
-         Pattern configPattern = Pattern.compile("\\[\\[ config.\\S+ ]]");
-         Pattern pagePattern = Pattern.compile("\\[\\[ page.\\S+ ]]");
-
-         Matcher configMatcher = configPattern.matcher(data.toString());
-
-         while (configMatcher.find()) {
-            String configName = configMatcher.group().substring(10, configMatcher.group().length() - 3);
-            String configValue = "";
-
-            for (String line : configFile) {
-               if (line.contains(configName)) {
-                  configValue = line.substring(configName.length() + 1);
-                  break;
-               }
+         // Tant qu'il y a des lignes à lire
+         String line;
+         while((line = reader.readLine()) != null) {
+            if (line.equals("...")) {
+               return config;
             }
 
-            if (!configValue.isEmpty())
-               data = new StringBuilder(data.toString().replaceFirst("\\[\\[ config.\\S+ ]]", configValue));
+            // Transforme la ligne en clé:valeur
+            var key_value = lineToConfig(line);
+
+            // Si la ligne ne contient pas de headers, continue
+            if (key_value == null) continue;
+
+            // Ajoute la valeur à la configuration chargée
+            config.put(key_value[0], key_value[1]);
          }
-
-         if (data.toString().startsWith("---")) {
-            String pageMetadatas = data.substring(0, data.indexOf("..."));
-            data = new StringBuilder(data.substring(data.indexOf("...") + 4));
-            ;
-
-            Matcher pageMatcher = pagePattern.matcher(data.toString());
-
-            while (pageMatcher.find()) {
-               String configName = pageMatcher.group().substring(8, pageMatcher.group().length() - 3);
-               String configValue = "";
-
-               if (pageMetadatas.contains(configName)) {
-                  configValue = pageMetadatas.substring(pageMetadatas.indexOf(configName) + configName.length() + 1,
-                        pageMetadatas.indexOf('\n', pageMetadatas.indexOf(configName)));
-               }
-
-               if (!configValue.isEmpty())
-                  data = new StringBuilder(data.toString().replaceFirst("\\[\\[ page.\\S+ ]]", configValue));
-            }
-         }
-
-         mdWriter.write(String.valueOf(data));
-      } catch (Exception e) {
-         System.err.println("An error occured while converting to HTML");
-         System.err.println(e.getMessage());
-      }
-   }
-
-   /**
-    * Builds the HTML code of a page from a .md
-    * 
-    * @param file a .md, relative path from source folder
-    * @throws IOException If the file cannot be opened
-    */
-   private void buildMD(File file) throws IOException {
-      // Checking that the given file is a md !
-      if (!file.toString().endsWith("md"))
-         return;
-
-      // Absolute path to the file, with given basePath in cmd
-      File absFile = new File(basePath + File.separator + file);
-
-      // Checking that the file isn't a directory !
-      if (absFile.isDirectory() || !absFile.exists())
-         throw new IllegalArgumentException("'" + absFile + "' isn't a valid file !");
-
-      // Path to HTML file
-      File buildFile = new File(basePath + File.separator + "build" + File.separator + file + ".html");
-
-      // Checks that the corresponding folder exists in the build folder
-      if (!buildFile.getParentFile().exists() && !buildFile.getParentFile().mkdirs()) {
-         throw new RuntimeException("Can't create folder '" + buildFile.getParentFile() + "' !");
-      }
-
-      // Converts MD to HTML
-      BufferedReader reader = new BufferedReader(new FileReader(absFile));
-      Parser parser = Parser.builder().build();
-      Node document = parser.parseReader(reader);
-      HtmlRenderer renderer = HtmlRenderer.builder().build();
-      var data = renderer.render(document);
-
-      data = putContentToLayout(data);
-
-      // Dumps the datas to the HTML file
-      try (
-            FileOutputStream fos = new FileOutputStream(buildFile);
-            BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-         byte[] bytes = data.getBytes();
-         bos.write(bytes);
       } catch (IOException e) {
-         e.printStackTrace();
+         System.err.println("Can't read config on top of '"+file+"'");
+         return null;
       }
 
-   }
-
-   public static void main(String... args) {
-      int exitCode = new CommandLine(new Build()).execute(args);
-      System.exit(exitCode);
+      return null;
    }
 }
