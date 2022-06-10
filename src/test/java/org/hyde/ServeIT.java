@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -42,19 +43,18 @@ public class ServeIT {
    }
 
    @Test
-   public void shouldServe_withNewSite(@TempDir File tempDirectory) {
+   public void shouldServe_withNewSite(@TempDir File tempDirectory) throws IOException {
       Hyde app = new Hyde();
       StringWriter sw = new StringWriter();
       CommandLine cmd = new CommandLine(app);
       cmd.setOut(new PrintWriter(sw));
 
-      int exitCode = cmd.execute("new", tempDirectory.getAbsolutePath());
-      assertEquals(0, exitCode);
+      File buildDir = new File(tempDirectory, "/build");
+      buildDir.mkdir();
+      File indexFile = new File(buildDir, "index.html");
+      indexFile.createNewFile();
 
-      cmd.execute("build", tempDirectory.getAbsolutePath());
-      assertEquals(0, exitCode);
-
-      exitCode = cmd.execute("serve", tempDirectory.getAbsolutePath());
+      int exitCode = cmd.execute("serve", tempDirectory.getAbsolutePath());
 
       assertEquals(0, exitCode);
    }
