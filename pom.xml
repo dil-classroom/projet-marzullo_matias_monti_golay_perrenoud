@@ -29,7 +29,7 @@
       <connection>scm:git:${project.scm.url}.git</connection>
       <developerConnection>scm:git:${project.scm.url}.git</developerConnection>
       <tag>HEAD</tag>
-  </scm>
+   </scm>
 
    <issueManagement>
       <system>Issues</system>
@@ -80,6 +80,11 @@
          <groupId>org.commonmark</groupId>
          <artifactId>commonmark</artifactId>
          <version>0.18.2</version>
+      </dependency>
+      <dependency>
+         <groupId>commons-io</groupId>
+         <artifactId>commons-io</artifactId>
+         <version>2.11.0</version>
       </dependency>
    </dependencies>
 
@@ -133,18 +138,18 @@
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>3.4.0</version>
             <executions>
-                <execution>
-                    <id>generate-javadoc</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>javadoc</goal>
-                    </goals>
+               <execution>
+                  <id>generate-javadoc</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>javadoc</goal>
+                  </goals>
                   <configuration>
                      <show>private</show>
                      <stylesheetfile>src/main/resources/stylesheet.css</stylesheetfile>
                      <windowtitle>${project.name} Documentation</windowtitle>
                   </configuration>
-                </execution>
+               </execution>
             </executions>
          </plugin>
 
@@ -166,7 +171,7 @@
                   </configuration>
                </execution>
             </executions>
-            </plugin>
+         </plugin>
 
 
          <plugin>
