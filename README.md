@@ -1,16 +1,28 @@
+# Hyde - Générateur de site
+  * [1. Procédure d'installation](#1-proc-dure-d-installation)
+  * [2. Commandes supportées](#2-commandes-support-es)
+    + [hyde new \<path>](#hyde-new---path-)
+    + [hyde build \<path>](#hyde-build---path-)
+    + [hyde serve \<path>](#hyde-serve---path-)
+    + [hyde clean \<path>](#hyde-clean---path-)
+    + [hyde -v, hyde --version](#hyde--v--hyde---version)
+  * [3. Cas d'utilisation typique](#3-cas-d-utilisation-typique)
+    + [Etape 1 : Créer le répertoire](#etape-1---cr-er-le-r-pertoire)
+    + [Etape 2 : Rédiger le site](#etape-2---r-diger-le-site)
+    + [Etape 3 : Générer le site](#etape-3---g-n-rer-le-site)
+
 # Manuel utilisateur
 
 Ce manuel détaille l'utilisation complète du générateur de site statique Hyde.
 
 ## 1. Procédure d'installation
 
-Pour installer le générateur de site web en local, il est possible de télécharger la dernière version de l'exécutable sur la page release. https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/releases
-Une fois l'exécutable téléchargé, on peut lancer les commandes depuis la racine du fichier. Il est également possible de rajouter le chemin du fichier dans la variable d'environnement `PATH`, ainsi les commandes peuvent se faire de n'importe où.
+L'exécutable du générateur est disponible sur la page des releases : https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/releases .
+Vous pouvez ajouter l'exécutable à votre variable d'environnement `PATH` ou le lancer avec `./hyde`.  
 
 
 ## 2. Commandes supportées
-
-Les commandes suivantes sont supportées :
+Les commandes supportées sont les suivantes :
 
 ### hyde new \<path>
 Crée un nouveau dossier dans le répertoire ```<path>``` contenant les fichiers nécessaires à la réalisation du site statique.
