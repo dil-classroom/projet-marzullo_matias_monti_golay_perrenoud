@@ -1,14 +1,14 @@
+/* hyde | Licenced under MIT 2022 | Golay, Marzullo, Matias, Monti & Perrenoud */
 package org.hyde;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
-
-import java.io.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class BuildIT {
     private final PrintStream sysOut = System.out;

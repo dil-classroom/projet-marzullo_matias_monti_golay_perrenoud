@@ -1,26 +1,19 @@
+/* hyde | Licenced under MIT 2022 | Golay, Marzullo, Matias, Monti & Perrenoud */
 package org.hyde.Utils;
-
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.commonmark.node.*;
+import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-
-import java.util.*;
-import java.nio.file.Files;
 
 public class SiteBuilder {
     private final Path basePath;
@@ -53,7 +46,7 @@ public class SiteBuilder {
 
             for (String patt : excludedFilePatterns) if (file.getName().matches(patt)) return 0;
         } else if (excludedFolders.contains(file.getName())) // Ignore les dossiers à ignorer
-            return 0;
+        return 0;
 
         // Créé le path où build
         File absBuildFile = new File(basePath + File.separator + "build" + File.separator + file);
