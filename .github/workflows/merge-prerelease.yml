@@ -47,7 +47,7 @@ jobs:
           git-release-bot-email: "release.bot.github@gmail.com"
           release-branch-name: "main"
           version-patch: true
-          maven-args: "-Ddockerfile.skip -DdockerCompose.skip -Dmaven.deploy.skip=true -Dtag=zbuild"
+          maven-args: "-Ddockerfile.skip -DdockerCompose.skip -Dmaven.deploy.skip=true -Dtag=zbuild -DskipTests=true"
         env:
           JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64/
         
