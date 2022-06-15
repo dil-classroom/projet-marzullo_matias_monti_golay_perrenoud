@@ -52,6 +52,7 @@
       <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
       <maven.jar.plugin.version>3.1.1</maven.jar.plugin.version>
       <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
+      <spotless.version>2.22.8</spotless.version>
    </properties>
 
    <dependencies>
@@ -244,6 +245,42 @@
                <preparationGoals>clean verify</preparationGoals>
                <remoteTagging>false</remoteTagging>
                <suppressCommitBeforeTag>true</suppressCommitBeforeTag>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless.version}</version>
+            <configuration>
+               <formats>
+                  <!-- <ratchetFrom>origin/main</ratchetFrom> -->
+                  <format>
+                     <includes>
+                        <include>src/main/java/**/*.java</include>
+                        <include>src/test/java/**/*.java</include>
+                        <include>pom.xml</include>
+                     </includes>
+                     <trimTrailingWhitespace />
+                     <endWithNewline />
+                     <indent>
+                        <spaces>true</spaces>
+                        <spacesPerTab>4</spacesPerTab>
+                     </indent>
+                  </format>
+               </formats>
+
+               <java>
+                  <removeUnusedImports />
+
+                  <palantirJavaFormat>
+                     <version>2.24.0</version>
+                  </palantirJavaFormat>
+
+                  <licenseHeader>
+                     <content>/* ${project.name} | Licenced under MIT $YEAR | Golay, Marzullo, Matias, Monti &amp; Perrenoud */</content>
+                  </licenseHeader>
+               </java>
             </configuration>
          </plugin>
       </plugins>
