@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+
 import org.junit.jupiter.api.Test;
 
 public class BuildTest {
@@ -84,11 +86,11 @@ public class BuildTest {
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
                     SecurityException {
         Build buildObj = new Build();
-        assertEquals("", getVarReplacementMethod().invoke(buildObj, ""));
+        assertEquals("", getVarReplacementMethod().invoke(buildObj, "", null, null));
     }
 
     private Method getVarReplacementMethod() throws NoSuchMethodException, SecurityException {
-        Method method = Build.class.getDeclaredMethod("varReplacement", String.class);
+        Method method = Build.class.getDeclaredMethod("varReplacement", String.class, HashMap.class, HashMap.class);
         method.setAccessible(true);
         return method;
     }
