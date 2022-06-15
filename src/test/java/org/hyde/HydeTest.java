@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HydeTest {
     private final PrintStream sysOut = System.out;
@@ -18,5 +19,10 @@ public class HydeTest {
     @AfterEach
     public void restoreStreams() {
         System.setOut(sysOut);
+    }
+
+    @Test
+    public void shouldExitWithSuccess_withNoArguments() {
+        Hyde.main();
     }
 }
