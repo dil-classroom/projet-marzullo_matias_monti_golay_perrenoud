@@ -16,8 +16,8 @@
 ![GitHub](https://img.shields.io/github/license/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud?style=flat-square)
 
 ![LGTM Grade](https://img.shields.io/lgtm/grade/java/github/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud?style=flat-square)
-![Code Coverage](https://img.shields.io/badge/coverage-83%25-yellowgreen)
-![Branches Coverage](https://img.shields.io/badge/branches-71%25-yellow)
+![Code Coverage](https://img.shields.io/badge/coverage-83%25-yellowgreen?style=flat-square)
+![Branches Coverage](https://img.shields.io/badge/branches-71%25-yellow?style=flat-square)
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/Create%20release%20on%20Milestone%20closed?label=Build%20and%20release&style=flat-square)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/Maven%20run%20tests?label=Maven%20tests&style=flat-square)
