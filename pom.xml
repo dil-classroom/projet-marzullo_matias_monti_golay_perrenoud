@@ -5,7 +5,7 @@
    <name>hyde</name>
    <artifactId>hyde</artifactId>
    <groupId>org.hyde</groupId>
-   <version>0.2.7-SNAPSHOT</version>
+   <version>0.2.8-SNAPSHOT</version>
 
    <description>Jekyll's evil twin static site generator</description>
 
