@@ -1,4 +1,4 @@
-name: Maven run tests
+name: Spotless check
 
 on:
   push:
