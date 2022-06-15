@@ -5,11 +5,11 @@
    <name>hyde</name>
    <artifactId>hyde</artifactId>
    <groupId>org.hyde</groupId>
-   <version>0.0.1</version>
+   <version>0.2.4-SNAPSHOT</version>
 
    <description>Jekyll's evil twin static site generator</description>
 
-   <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
+   <url>${project.url}</url>
 
    <licenses>
       <license>
@@ -20,36 +20,39 @@
    </licenses>
 
    <organization>
-      <name>marzullo_matias_monti_golay_perrenoud</name>
+      <name>Marzullo, Matias, Monti, Golay and Perrenoud</name>
       <url>https://github.com/orgs/dil-classroom/teams/marzullo_matias_monti</url>
    </organization>
 
    <scm>
-      <url>scm:git:https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</url>
-      <connection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</connection>
-      <developerConnection>scm:git:git@github.com:dil-classroom/projet-marzullo_matias_monti_golay_perrenoud.git</developerConnection>
-     <tag>v0.0.1</tag>
-  </scm>
+      <url>git@github.com:${project.repo}</url>
+      <connection>scm:git:${project.scm.url}.git</connection>
+      <developerConnection>scm:git:${project.scm.url}.git</developerConnection>
+      <tag>HEAD</tag>
+   </scm>
 
    <issueManagement>
       <system>Issues</system>
-      <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/issues</url>
+      <url>${project.url}/issues</url>
    </issueManagement>
 
    <ciManagement>
       <system>Pipelines</system>
-      <url>https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/pipelines</url>
+      <url>${project.scm.url}/pipelines</url>
    </ciManagement>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <main.class>org.hyde.Hyde</main.class>
+      <project.repo>dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</project.repo>
+      <project.url>https://github.com/${project.repo}</project.url>
+      <project.main.class>org.hyde.Hyde</project.main.class>
       <exec.mainClass>org.hyde.Hyde</exec.mainClass>
       <java.version>11</java.version>
       <junit.jupiter.version>5.4.2</junit.jupiter.version>
       <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
       <maven.jar.plugin.version>3.1.1</maven.jar.plugin.version>
       <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
+      <spotless.version>2.22.8</spotless.version>
    </properties>
 
    <dependencies>
@@ -74,13 +77,15 @@
          <artifactId>slf4j-simple</artifactId>
          <version>1.7.31</version>
       </dependency>
-
-
-      <!-- MD to HTML Lib -->
       <dependency>
          <groupId>org.commonmark</groupId>
          <artifactId>commonmark</artifactId>
          <version>0.18.2</version>
+      </dependency>
+      <dependency>
+         <groupId>commons-io</groupId>
+         <artifactId>commons-io</artifactId>
+         <version>2.11.0</version>
       </dependency>
    </dependencies>
 
@@ -113,7 +118,7 @@
                      <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                            <manifestEntries>
-                              <Main-Class>${main.class}</Main-Class>
+                              <Main-Class>${project.main.class}</Main-Class>
                               <Implementation-Title>${project.artifactId}</Implementation-Title>
                               <Implementation-Version>${project.version}</Implementation-Version>
                            </manifestEntries>
@@ -130,6 +135,47 @@
          </plugin>
 
          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.4.0</version>
+            <executions>
+               <execution>
+                  <id>generate-javadoc</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>javadoc</goal>
+                  </goals>
+                  <configuration>
+                     <show>private</show>
+                     <stylesheetfile>src/main/resources/stylesheet.css</stylesheetfile>
+                     <windowtitle>${project.name} Documentation</windowtitle>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>docs-assembly</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+                  <configuration>
+                     <finalName>${project.name}-javadoc</finalName>
+                     <appendAssemblyId>false</appendAssemblyId>
+                     <descriptors>
+                        <descriptor>src/main/resources/assemble.xml</descriptor>
+                     </descriptors>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+
+
+         <plugin>
             <groupId>org.skife.maven</groupId>
             <artifactId>really-executable-jar-maven-plugin</artifactId>
             <version>1.4.1</version>
@@ -138,7 +184,6 @@
                <programFile>${project.name}</programFile>
 
             </configuration>
-
             <executions>
                <execution>
                   <phase>package</phase>
@@ -166,7 +211,7 @@
                      <jar>target/${project.name}-${project.version}.jar</jar>
                      <errTitle>${project.name}</errTitle>
                      <classPath>
-                        <mainClass>${main.class}</mainClass>
+                        <mainClass>${project.main.class}</mainClass>
                         <addDependencies>false</addDependencies>
                         <preCp>anything</preCp>
                      </classPath>
@@ -196,7 +241,46 @@
             <version>3.0.0-M5</version>
             <configuration>
                <tagNameFormat>v@{project.version}</tagNameFormat>
+               <scmCommentPrefix>[CI SKIP]</scmCommentPrefix>
                <preparationGoals>clean verify</preparationGoals>
+               <remoteTagging>false</remoteTagging>
+               <suppressCommitBeforeTag>true</suppressCommitBeforeTag>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless.version}</version>
+            <configuration>
+               <formats>
+                  <!-- <ratchetFrom>origin/main</ratchetFrom> -->
+                  <format>
+                     <includes>
+                        <include>src/main/java/**/*.java</include>
+                        <include>src/test/java/**/*.java</include>
+                        <include>pom.xml</include>
+                     </includes>
+                     <trimTrailingWhitespace />
+                     <endWithNewline />
+                     <indent>
+                        <spaces>true</spaces>
+                        <spacesPerTab>4</spacesPerTab>
+                     </indent>
+                  </format>
+               </formats>
+
+               <java>
+                  <removeUnusedImports />
+
+                  <palantirJavaFormat>
+                     <version>2.24.0</version>
+                  </palantirJavaFormat>
+
+                  <licenseHeader>
+                     <content>/* ${project.name} | Licenced under MIT $YEAR | Golay, Marzullo, Matias, Monti &amp; Perrenoud */</content>
+                  </licenseHeader>
+               </java>
             </configuration>
          </plugin>
       </plugins>
