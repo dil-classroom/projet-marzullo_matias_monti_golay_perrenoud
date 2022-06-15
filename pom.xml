@@ -5,11 +5,11 @@
    <name>hyde</name>
    <artifactId>hyde</artifactId>
    <groupId>org.hyde</groupId>
-   <version>0.0.1-SNAPSHOT</version>
+   <version>0.2.6-SNAPSHOT</version>
 
    <description>Jekyll's evil twin static site generator</description>
 
-   <url>${project.scm.url}</url>
+   <url>${project.url}</url>
 
    <licenses>
       <license>
@@ -25,15 +25,15 @@
    </organization>
 
    <scm>
-      <url>scm:git:${project.scm.url}</url>
-      <connection>scm:git:git@github.com:${project.scm}.git</connection>
-      <developerConnection>scm:git:git@github.com:${project.scm}.git</developerConnection>
-     <tag>HEAD</tag>
-  </scm>
+      <url>git@github.com:${project.repo}</url>
+      <connection>scm:git:${project.scm.url}.git</connection>
+      <developerConnection>scm:git:${project.scm.url}.git</developerConnection>
+      <tag>HEAD</tag>
+   </scm>
 
    <issueManagement>
       <system>Issues</system>
-      <url>${project.scm.url}/issues</url>
+      <url>${project.url}/issues</url>
    </issueManagement>
 
    <ciManagement>
@@ -43,15 +43,18 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <project.scm>dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</project.scm>
-      <project.scm.url>https://github.com/${project.scm}</project.scm.url>
+      <project.repo>dil-classroom/projet-marzullo_matias_monti_golay_perrenoud</project.repo>
+      <project.url>https://github.com/${project.repo}</project.url>
       <project.main.class>org.hyde.Hyde</project.main.class>
       <exec.mainClass>org.hyde.Hyde</exec.mainClass>
       <java.version>11</java.version>
       <junit.jupiter.version>5.4.2</junit.jupiter.version>
+      <jacoco.version>0.8.8</jacoco.version>
       <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
       <maven.jar.plugin.version>3.1.1</maven.jar.plugin.version>
       <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
+      <maven.failsafe.plugin.version>3.0.0-M7</maven.failsafe.plugin.version>
+      <spotless.version>2.22.8</spotless.version>
    </properties>
 
    <dependencies>
@@ -80,6 +83,11 @@
          <groupId>org.commonmark</groupId>
          <artifactId>commonmark</artifactId>
          <version>0.18.2</version>
+      </dependency>
+      <dependency>
+         <groupId>commons-io</groupId>
+         <artifactId>commons-io</artifactId>
+         <version>2.11.0</version>
       </dependency>
    </dependencies>
 
@@ -124,8 +132,49 @@
          </plugin>
 
          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco.version}</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>prepare-agent</goal>
+                  </goals>
+               </execution>
+               <execution>
+                  <id>report</id>
+                  <phase>prepare-package</phase>
+                  <goals>
+                     <goal>report</goal>
+                  </goals>
+               </execution>
+               <execution>
+                  <id>verify</id>
+                  <phase>verify</phase>
+                  <goals>
+                     <goal>report</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven.surefire.plugin.version}</version>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>${maven.failsafe.plugin.version}</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>integration-test</goal>
+                     <goal>verify</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
 
          <plugin>
@@ -133,18 +182,18 @@
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>3.4.0</version>
             <executions>
-                <execution>
-                    <id>generate-javadoc</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>javadoc</goal>
-                    </goals>
+               <execution>
+                  <id>generate-javadoc</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>javadoc</goal>
+                  </goals>
                   <configuration>
                      <show>private</show>
                      <stylesheetfile>src/main/resources/stylesheet.css</stylesheetfile>
                      <windowtitle>${project.name} Documentation</windowtitle>
                   </configuration>
-                </execution>
+               </execution>
             </executions>
          </plugin>
 
@@ -166,7 +215,7 @@
                   </configuration>
                </execution>
             </executions>
-            </plugin>
+         </plugin>
 
 
          <plugin>
@@ -235,8 +284,46 @@
             <version>3.0.0-M5</version>
             <configuration>
                <tagNameFormat>v@{project.version}</tagNameFormat>
-               <scmCommentPrefix>[CI skip]</scmCommentPrefix>
+               <scmCommentPrefix>[CI SKIP]</scmCommentPrefix>
                <preparationGoals>clean verify</preparationGoals>
+               <remoteTagging>false</remoteTagging>
+               <suppressCommitBeforeTag>true</suppressCommitBeforeTag>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless.version}</version>
+            <configuration>
+               <formats>
+                  <!-- <ratchetFrom>origin/main</ratchetFrom> -->
+                  <format>
+                     <includes>
+                        <include>src/main/java/**/*.java</include>
+                        <include>src/test/java/**/*.java</include>
+                        <include>pom.xml</include>
+                     </includes>
+                     <trimTrailingWhitespace />
+                     <endWithNewline />
+                     <indent>
+                        <spaces>true</spaces>
+                        <spacesPerTab>4</spacesPerTab>
+                     </indent>
+                  </format>
+               </formats>
+
+               <java>
+                  <removeUnusedImports />
+
+                  <palantirJavaFormat>
+                     <version>2.24.0</version>
+                  </palantirJavaFormat>
+
+                  <licenseHeader>
+                     <content>/* ${project.name} | Licenced under MIT $YEAR | Golay, Marzullo, Matias, Monti &amp; Perrenoud */</content>
+                  </licenseHeader>
+               </java>
             </configuration>
          </plugin>
       </plugins>
