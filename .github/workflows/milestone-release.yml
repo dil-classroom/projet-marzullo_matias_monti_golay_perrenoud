@@ -42,7 +42,7 @@ jobs:
           release-branch-name: "main"
           version-minor: true
           skip-bot-release-check: true
-          maven-args: "-Ddockerfile.skip -DdockerCompose.skip -Dmaven.deploy.skip=true -Dtag=zbuild"
+          maven-args: "-Ddockerfile.skip -DdockerCompose.skip -Dmaven.deploy.skip=true -Dtag=zbuild -DskipTests=true"
         env:
           JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64/
 
