@@ -1,6 +1,5 @@
 package org.hyde;
 
-import org.hyde.utils.RecursiveFileWatcher;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -18,6 +17,7 @@ import java.util.regex.Pattern;
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.hyde.Utils.RecursiveFileWatcher;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardWatchEventKinds.*;

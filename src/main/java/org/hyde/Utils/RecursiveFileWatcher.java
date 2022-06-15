@@ -1,4 +1,4 @@
-package org.hyde.utils;
+package org.hyde.Utils;
 
 import java.io.IOException;
 import java.nio.file.*;
