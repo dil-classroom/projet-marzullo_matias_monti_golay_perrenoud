@@ -1,5 +1,5 @@
 /* hyde | Licenced under MIT 2022 | Golay, Marzullo, Matias, Monti & Perrenoud */
-package org.hyde;
+package org.hyde.Utils;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -7,11 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-
-import org.hyde.Utils.SiteBuilder;
 import org.junit.jupiter.api.Test;
 
-public class BuildTest {
+public class SiteBuilderTest {
     /*
      * lineToConfig tests
      */
@@ -90,8 +88,13 @@ public class BuildTest {
         assertEquals("", getVarReplacementMethod().invoke(buildObj, "", null, null));
     }
 
+    /*
+     * Get private methods
+     */
+
     private Method getVarReplacementMethod() throws NoSuchMethodException, SecurityException {
-        Method method = SiteBuilder.class.getDeclaredMethod("varReplacement", String.class, HashMap.class, HashMap.class);
+        Method method =
+                SiteBuilder.class.getDeclaredMethod("varReplacement", String.class, HashMap.class, HashMap.class);
         method.setAccessible(true);
         return method;
     }
