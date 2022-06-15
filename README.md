@@ -11,6 +11,16 @@
     + [Etape 2 : Rédiger le site](#etape-2--rédiger-le-site)
     + [Etape 3 : Générer le site](#etape-3--générer-le-site)
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud?style=flat-square)
+![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud?include_prereleases&label=prerelease&style=flat-square)
+
+![LGTM Grade](https://img.shields.io/lgtm/grade/java/github/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud?style=flat-square)
+![GitHub](https://img.shields.io/github/license/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud?style=flat-square)
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/Create%20release%20on%20Milestone%20closed?label=Build%20and%20release&style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/Maven%20run%20tests?label=Maven%20tests&style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/Spotless%20check?label=Spotless&style=flat-square)
+
 # Manuel utilisateur
 
 Ce manuel détaille l'utilisation complète du générateur de site statique Hyde.
