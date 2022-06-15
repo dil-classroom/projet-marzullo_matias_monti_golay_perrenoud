@@ -1,15 +1,15 @@
 # Hyde - Générateur de site
-  * [1. Procédure d'installation](#1-proc-dure-d-installation)
-  * [2. Commandes supportées](#2-commandes-support-es)
-    + [hyde new \<path>](#hyde-new---path-)
-    + [hyde build \<path>](#hyde-build---path-)
-    + [hyde serve \<path>](#hyde-serve---path-)
-    + [hyde clean \<path>](#hyde-clean---path-)
-    + [hyde -v, hyde --version](#hyde--v--hyde---version)
-  * [3. Cas d'utilisation typique](#3-cas-d-utilisation-typique)
-    + [Etape 1 : Créer le répertoire](#etape-1---cr-er-le-r-pertoire)
-    + [Etape 2 : Rédiger le site](#etape-2---r-diger-le-site)
-    + [Etape 3 : Générer le site](#etape-3---g-n-rer-le-site)
+  * [1. Procédure d'installation](#1-procédure-dinstallation)
+  * [2. Commandes supportées](#2-commandes-supportées)
+    + [hyde new \<path>](#hyde-new-path)
+    + [hyde build \<path>](#hyde-build-path)
+    + [hyde serve \<path>](#hyde-serve-path)
+    + [hyde clean \<path>](#hyde-clean-path)
+    + [hyde -v, hyde --version](#hyde--v-hyde---version)
+  * [3. Cas d'utilisation typique](#3-cas-dutilisation-typique)
+    + [Etape 1 : Créer le répertoire](#etape-1---créer-le-répertoire)
+    + [Etape 2 : Rédiger le site](#etape-2---rédiger-le-site)
+    + [Etape 3 : Générer le site](#etape-3---générer-le-site)
 
 # Manuel utilisateur
 
