@@ -16,12 +16,12 @@ Les commandes suivantes sont supportées :
 Crée un nouveau dossier dans le répertoire ```<path>``` contenant les fichiers nécessaires à la réalisation du site statique.
 Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est utilisé.
 
-### hyde build \<path> \<--watch>
+### hyde build \<path> \[--watch]
 Génère les fichiers HTML du site statique à partir des fichiers présents dans le répertoire ```<path>``` et les place dans un nouveau sous-dossier ```<path>/build```.
 Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est utilisé.
 Le paramètre ```--watch``` indique au programme d'exécuter automatiquement cette commande lorsque une modifications est effectuée dans les fichiers sources du site.
 
-### hyde serve \<path> \<--watch>
+### hyde serve \<path> \[--watch]
 Permet de visualiser le site défini par les fichiers se trouvant dans le sous-dossier ```<path>/build```, ceux-ci étant générés par la commande ```build```.
 Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est utilisé.
 Le paramètre ```--watch``` indique au programme d'exécuter automatiquement cette commande lorsque une modifications est effectuée dans les fichiers sources du site.
