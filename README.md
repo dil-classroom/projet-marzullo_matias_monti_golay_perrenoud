@@ -5,7 +5,7 @@ Ce manuel détaille l'utilisation complète du générateur de site statique Hyd
 ## 1. Procédure d'installation
 
 Pour installer le générateur de site web en local, il est possible de télécharger la dernière version de l'exécutable sur la page release. https://github.com/dil-classroom/projet-marzullo_matias_monti_golay_perrenoud/releases
-Une fois l'exécutable téléchargé, on peut lancer les commandes à la racine du fichier. Il est également possible de rajouter le chemin du fichier dans la variable d'environnement Path, ainsi les commandes peuvent se faire de n'importe où.
+Une fois l'exécutable téléchargé, on peut lancer les commandes depuis la racine du fichier. Il est également possible de rajouter le chemin du fichier dans la variable d'environnement `PATH`, ainsi les commandes peuvent se faire de n'importe où.
 
 
 ## 2. Commandes supportées
@@ -16,15 +16,13 @@ Les commandes suivantes sont supportées :
 Crée un nouveau dossier dans le répertoire ```<path>``` contenant les fichiers nécessaires à la réalisation du site statique.
 Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est utilisé.
 
-### hyde build \<path> \[--watch]
+### hyde build \<path>
 Génère les fichiers HTML du site statique à partir des fichiers présents dans le répertoire ```<path>``` et les place dans un nouveau sous-dossier ```<path>/build```.
 Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est utilisé.
-Le paramètre ```--watch``` indique au programme d'exécuter automatiquement cette commande lorsque une modifications est effectuée dans les fichiers sources du site.
 
-### hyde serve \<path> \[--watch]
+### hyde serve \<path>
 Permet de visualiser le site défini par les fichiers se trouvant dans le sous-dossier ```<path>/build```, ceux-ci étant générés par la commande ```build```.
 Si le paramètre ```<path>``` n'est pas spécifié, le répertoire courant est utilisé.
-Le paramètre ```--watch``` indique au programme d'exécuter automatiquement cette commande lorsque une modifications est effectuée dans les fichiers sources du site.
 
 ### hyde clean \<path>
 Supprime le répertoire ```<path>/build``` ainsi que tous ses sous-dossiers.
