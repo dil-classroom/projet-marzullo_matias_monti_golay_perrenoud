@@ -23,9 +23,53 @@ public class NewIT {
         int exitCode = cmd.execute("new", tempDirectory.getAbsolutePath());
 
         assertAll(
-                () -> assertEquals(0, exitCode),
+                () -> assertEquals(CommandLine.ExitCode.OK, exitCode),
                 () -> assertTrue(new File(tempDirectory, "/template").exists()),
                 () -> assertTrue(new File(tempDirectory, "config.yaml").exists()),
                 () -> assertTrue(new File(tempDirectory, "index.md").exists()));
+    }
+
+    @Test
+    public void shouldReturnFailure_withReadOnlyDir(@TempDir File tempDirectory) {
+        Hyde app = new Hyde();
+        StringWriter sw = new StringWriter();
+        CommandLine cmd = new CommandLine(app);
+        cmd.setOut(new PrintWriter(sw));
+
+        tempDirectory.setWritable(false);
+
+        assertEquals(CommandLine.ExitCode.SOFTWARE, cmd.execute("new", tempDirectory.getAbsolutePath()));
+    }
+
+    @Test
+    public void shouldReturnFailure_withReadOnlyParentDir(@TempDir File tempDirectory) {
+        Hyde app = new Hyde();
+        StringWriter sw = new StringWriter();
+        CommandLine cmd = new CommandLine(app);
+        cmd.setOut(new PrintWriter(sw));
+
+        File rwDir = new File(tempDirectory, "/rw");
+        rwDir.mkdir();
+        tempDirectory.setWritable(false);
+        File roDir = new File(tempDirectory, "/ro");
+
+        assertAll(
+                () -> assertEquals(CommandLine.ExitCode.SOFTWARE, cmd.execute("new", roDir.getAbsolutePath())),
+                () -> assertEquals(CommandLine.ExitCode.OK, cmd.execute("new", rwDir.getAbsolutePath())));
+        tempDirectory.setWritable(true);
+    }
+
+    @Test
+    public void shouldReturnFailure_withReadOnlySiteDir(@TempDir File tempDirectory) {
+        Hyde app = new Hyde();
+        StringWriter sw = new StringWriter();
+        CommandLine cmd = new CommandLine(app);
+        cmd.setOut(new PrintWriter(sw));
+
+        File rootDir = new File(tempDirectory, "/root");
+        rootDir.mkdir();
+        rootDir.setWritable(false);
+
+        assertEquals(CommandLine.ExitCode.SOFTWARE, cmd.execute("new", rootDir.getAbsolutePath()));
     }
 }
