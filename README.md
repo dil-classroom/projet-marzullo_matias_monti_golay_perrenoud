@@ -7,9 +7,9 @@
     + [hyde clean \<path>](#hyde-clean-path)
     + [hyde -v, hyde --version](#hyde--v-hyde---version)
   * [3. Cas d'utilisation typique](#3-cas-dutilisation-typique)
-    + [Etape 1 : Créer le répertoire](#etape-1---créer-le-répertoire)
-    + [Etape 2 : Rédiger le site](#etape-2---rédiger-le-site)
-    + [Etape 3 : Générer le site](#etape-3---générer-le-site)
+    + [Etape 1 : Créer le répertoire](#etape-1--créer-le-répertoire)
+    + [Etape 2 : Rédiger le site](#etape-2--rédiger-le-site)
+    + [Etape 3 : Générer le site](#etape-3--générer-le-site)
 
 # Manuel utilisateur
 
