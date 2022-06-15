@@ -36,7 +36,7 @@ public class HydeIT {
 
         int exitCode = cmd.execute("-v");
         assertAll(
-                () -> assertEquals(0, exitCode)
+                () -> assertEquals(CommandLine.ExitCode.OK, exitCode)
                 // () -> assertTrue(outContent.toString().contains("hyde version"))
                 );
     }
@@ -50,7 +50,7 @@ public class HydeIT {
 
         int exitCode = cmd.execute("--version");
         assertAll(
-                () -> assertEquals(0, exitCode)
+                () -> assertEquals(CommandLine.ExitCode.OK, exitCode)
                 // () -> assertTrue(outContent.toString().contains("hyde version"))
                 );
     }
@@ -63,6 +63,17 @@ public class HydeIT {
         cmd.setOut(new PrintWriter(sw));
 
         int exitCode = cmd.execute();
-        assertEquals(0, exitCode);
+        assertEquals(CommandLine.ExitCode.OK, exitCode);
+    }
+
+    @Test
+    public void shouldReturnFailure_withWrongArgument() {
+        Hyde app = new Hyde();
+        StringWriter sw = new StringWriter();
+        CommandLine cmd = new CommandLine(app);
+        cmd.setOut(new PrintWriter(sw));
+
+        int exitCode = cmd.execute("false");
+        assertEquals(CommandLine.ExitCode.USAGE, exitCode);
     }
 }

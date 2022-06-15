@@ -38,7 +38,7 @@ public class ServeIT {
 
         int exitCode = cmd.execute("serve");
 
-        assertEquals(1, exitCode);
+        assertEquals(CommandLine.ExitCode.SOFTWARE, exitCode);
     }
 
     @Test
@@ -55,6 +55,6 @@ public class ServeIT {
 
         int exitCode = cmd.execute("serve", tempDirectory.getAbsolutePath());
 
-        assertEquals(0, exitCode);
+        assertEquals(CommandLine.ExitCode.OK, exitCode);
     }
 }

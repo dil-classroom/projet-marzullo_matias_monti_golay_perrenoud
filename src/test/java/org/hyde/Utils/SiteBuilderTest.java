@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 public class SiteBuilderTest {
     /*
-     * lineToConfig tests
+     * lineToConfig() tests
      */
 
     @Test
@@ -77,7 +77,7 @@ public class SiteBuilderTest {
     }
 
     /*
-     * varReplacement tests
+     * varReplacement() tests
      */
 
     @Test

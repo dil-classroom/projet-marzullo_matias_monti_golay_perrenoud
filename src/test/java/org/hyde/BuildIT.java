@@ -25,14 +25,14 @@ public class BuildIT {
     }
 
     @Test
-    public void shouldBuild_fromNew(@TempDir File tempDirectory) {
+    public void shouldBuild_withFiles(@TempDir File tempDirectory) throws IOException {
         Hyde app = new Hyde();
         StringWriter sw = new StringWriter();
         CommandLine cmd = new CommandLine(app);
         cmd.setOut(new PrintWriter(sw));
 
-        assertEquals(0, cmd.execute("new", tempDirectory.getAbsolutePath()));
-        assertEquals(0, cmd.execute("build", tempDirectory.getAbsolutePath()));
+        assertEquals(CommandLine.ExitCode.OK, cmd.execute("new", tempDirectory.getAbsolutePath()));
+        assertEquals(CommandLine.ExitCode.OK, cmd.execute("build", tempDirectory.getAbsolutePath()));
 
         assertTrue(new File(tempDirectory, "/build/").exists());
         assertTrue(new File(tempDirectory, "/build/").isDirectory());
@@ -44,7 +44,7 @@ public class BuildIT {
     }
 
     @Test
-    public void shouldBuild_empty(@TempDir File tempDirectory) {
+    public void shouldBuild_withEmptyFolder(@TempDir File tempDirectory) {
         // Créer un dossier vide
         // Le build
         // Créé le dossier build avec succès
